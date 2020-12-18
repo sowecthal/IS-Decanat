@@ -3,11 +3,13 @@
 
 #include <QMessageBox>
 #include <QFile>
+#include <QDebug>
 
 AuthWindow::AuthWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AuthWindow)
 {
+    qDebug() << "[ IN AUTHWINDOW ]";
     ui->setupUi(this);
     this->setWindowTitle("Авторизация");
     ui->lineLogin->setMaxLength(30);
