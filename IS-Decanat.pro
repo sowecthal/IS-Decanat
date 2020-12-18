@@ -10,11 +10,13 @@ CONFIG += c++11
 
 SOURCES += \
     authwindow.cpp \
+    databases.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     authwindow.h \
+    databases.h \
     mainwindow.h
 
 FORMS += \

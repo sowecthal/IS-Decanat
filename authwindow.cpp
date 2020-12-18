@@ -22,9 +22,9 @@ AuthWindow::~AuthWindow()
     delete ui;
 }
 
-int AuthWindow::authorization(QString login, QString password)
+int AuthWindow::findUser(QString login, QString password)
 {
-    QFile infile(":/data/authorizationStorage.isd");
+    QFile infile(":/data/Users.isd");
 
     // Открываем файл только для чтения
     if (!infile.open(QIODevice::ReadOnly))
@@ -33,14 +33,12 @@ int AuthWindow::authorization(QString login, QString password)
         throw std::runtime_error((tr("open(): ") + infile.errorString()).toStdString());
     }
 
-
-
-    return(-1);
+    return(1);
 }
 
 void AuthWindow::accept()
 {
-    int state = authorization(ui->lineLogin->text(), ui->linePassword->text());
+    int state = findUser(ui->lineLogin->text(), ui->linePassword->text());
     if (state == -1)
     {
         QMessageBox::warning(this, "Ошибка", "Неверное имя пользователя или пароль, попробуйте заново.");

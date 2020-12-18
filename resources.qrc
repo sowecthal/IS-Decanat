@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>data/authorizationStorage.isd</file>
+        <file>data/Users.isd</file>
+        <file>icons/addNote.svg</file>
+        <file>icons/removeNote.svg</file>
     </qresource>
 </RCC>

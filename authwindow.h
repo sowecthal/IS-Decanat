@@ -22,7 +22,7 @@ public:
      *(0 - администратор, 1 - деспетчер деканата, 2 - студент)
      * если авторизация успешна, иначе возвращает -1
     */
-    int authorization(QString login, QString password);
+    int findUser(QString login, QString password);
 
     QString Login;
     QString Password;
