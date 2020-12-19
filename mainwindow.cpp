@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     qDebug() << "[ IN MAINWINDOW ]";
     ui->setupUi(this);
+    ui->toolBar->setMovable(false);
+    ui->toolBar->orientationChanged(Qt::Vertical);
 }
 
 MainWindow::~MainWindow()
@@ -21,8 +23,3 @@ void MainWindow::setTitle(QString str)
     this->setWindowTitle(str);
 }
 
-void MainWindow::setMode(int key)
-{
-    ui->toolBar->setMovable(false);
-    ui->toolBar->orientationChanged(Qt::Vertical);
-}

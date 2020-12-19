@@ -15,7 +15,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void setTitle(QString password);
-    void setMode(int key);
 
 private:
     Ui::MainWindow *ui;

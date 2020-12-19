@@ -1,15 +1,18 @@
 #include "authwindow.h"
 #include "ui_authwindow.h"
+#include "databases.h"
+#include "dataclasses/user.h"
 
 #include <QMessageBox>
 #include <QFile>
 #include <QDebug>
 
-AuthWindow::AuthWindow(QWidget *parent) :
+AuthWindow::AuthWindow(DataBases sDB, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AuthWindow)
 {
     qDebug() << "[ IN AUTHWINDOW ]";
+    db = sDB;
     ui->setupUi(this);
     this->setWindowTitle("Авторизация");
     ui->lineLogin->setMaxLength(30);
@@ -24,24 +27,15 @@ AuthWindow::~AuthWindow()
     delete ui;
 }
 
-int AuthWindow::findUser(QString login, QString password)
-{
-    QFile infile(":/data/Users.isd");
 
-    // Открываем файл только для чтения
-    if (!infile.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::warning(this, "Ошибка", "Программе не удалось обнаружить необходимый для авторизациии файл");
-        throw std::runtime_error((tr("open(): ") + infile.errorString()).toStdString());
-    }
-
-    return(1);
-}
 
 void AuthWindow::accept()
 {
-    int state = findUser(ui->lineLogin->text(), ui->linePassword->text());
-    if (state == -1)
+    User nUser(ui->lineLogin->text(), ui->linePassword->text(), -1);
+
+    nUser.setRole(db.findUser(nUser));
+
+    if (nUser.getRole() == -1)
     {
         QMessageBox::warning(this, "Ошибка", "Неверное имя пользователя или пароль, попробуйте заново.");
     }

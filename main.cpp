@@ -5,21 +5,25 @@
 #include <QApplication>
 #include <QDialog>
 #include <QDebug>
+#include <QDir>
 
 //char *authorization(char)
 
 int main(int argc, char *argv[])
 {
     qDebug() << "[ IN MAIN ]";
+    QDir().mkdir("data");
     QApplication a(argc, argv);
-    MainWindow w;
-    AuthWindow aw;
+
     DataBases db;
+    MainWindow w;
+    AuthWindow aw(db);
+
 
     if (aw.exec() == QDialog::Accepted)
-    {  
+    {
+
         w.show();
-        w.setMode(aw.Role);
         w.setTitle(aw.getLineLogin());
     }
 

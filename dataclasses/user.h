@@ -12,6 +12,11 @@ private:
 
 public:
     User(QString uLogin, QString uPassword, int uRole);
+
+    void setRole(int sRole);
+    int getRole();
+    QString getLogin();
+    QString getPassword();
 };
 
 #endif // USER_H

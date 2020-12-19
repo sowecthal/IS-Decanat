@@ -12,12 +12,14 @@ class DataBases
 
 public:
 
-    QList<User> *users;
+    QList<User> users;
 
     DataBases();
 
     void loadAll();
 
-    void insert(QString iPassword, QString iLogin, int iRole);
+    void insertUser(QString iPassword, QString iLogin, int iRole);
+
+    int findUser(User fUser);
 };
 #endif // DATABASES_H
