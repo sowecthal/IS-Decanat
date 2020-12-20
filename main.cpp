@@ -15,16 +15,14 @@ int main(int argc, char *argv[])
     QDir().mkdir("data");
     QApplication a(argc, argv);
 
-    DataBases db;
-    MainWindow w;
-    AuthWindow aw(db);
-
+    DataBases* db = new DataBases;
+    MainWindow w(*db);
+    AuthWindow aw(*db);
 
     if (aw.exec() == QDialog::Accepted)
     {
-
         w.show();
-        w.setTitle(aw.getLineLogin());
+        w.setMode(aw.mode);
     }
 
     return a.exec();

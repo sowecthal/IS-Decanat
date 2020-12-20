@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(DataBases sDB, QWidget *parent = nullptr);
+    MainWindow(const DataBases &sDB, QWidget *parent = nullptr);
     ~MainWindow();
     void setMode(int sMode);
 

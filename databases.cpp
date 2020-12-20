@@ -4,31 +4,29 @@
 #include <QDebug>
 #include <QFile>
 #include <QDataStream>
-
+#include <QTableView>
+#include <QStandardItemModel>
 
 DataBases::DataBases()
 {
-    qDebug() << "[ IN DATABASES ]";
-    insertUser("admin", "admin", 2);
     loadAll();
 }
 
-void DataBases::insertUser(QString iPassword, QString iLogin, int iRole)
+void DataBases::insertUser(QString iLogin, QString iPassword,  int iRole)
 {
-    qDebug() << "[ IN DATABASES::INSERT ]";
     QFile outFile("data/Users.bin");
 
-    if (outFile.open(QIODevice::WriteOnly))
+    if (outFile.open(QIODevice::Append))
     {
         QDataStream outStream(&outFile);
         outStream << iLogin << iPassword << iRole;
+        qDebug() << "[DataBases::insertUser] Insert: " << iLogin << iPassword << iRole;
     }
     outFile.close();
 }
 
 void DataBases::loadAll()
 {
-    qDebug() << "[ IN DATABASES::LOADALL ]";
     QFile inFile("data/Users.bin");
 
     if (inFile.open(QIODevice::ReadOnly))
@@ -36,33 +34,47 @@ void DataBases::loadAll()
         QDataStream inStream(&inFile);
         while (!inStream.atEnd())
         {
+            qDebug() << "[DataBases::loadAll] New iteration";
             QString tmpPassword, tmpLogin;
             int tmpRole;
             inStream >> tmpLogin >> tmpPassword >> tmpRole;
-            qDebug() << tmpLogin << tmpPassword << tmpRole;
+
             User newUser(tmpLogin, tmpPassword, tmpRole);
-            users.push_back(newUser);
+            usersList.push_back(newUser);
         }
     }
+    qDebug() << usersList.length();
     inFile.close();
 }
 
 int DataBases::findUser(User fUser)
 {
-    qDebug() << "[ IN DATABASES::FINDUSER ]";
-    for (int i=0; i<users.length();i++)
+    for (int i=0; i<usersList.length();i++)
     {
-        qDebug() << "[ IN DATABASES::FINDUSER] user[i]" << users[i].getLogin() << users[i].getPassword();
-        qDebug() << "[ IN DATABASES::FINDUSER] fUser" << fUser.getLogin() << fUser.getPassword();
-        if (users[i].getLogin() == fUser.getLogin())
+        qDebug() << "[DataBases::findUser] Pair comparison (" << i+1 << "/" << usersList.length() << "): " << "(L: " << usersList[i].getLogin() << " P: " << usersList[i].getPassword() << ") & (L: "
+                 << fUser.getLogin() << " P: " << fUser.getPassword() << ")";
+        if (usersList[i].getLogin() == fUser.getLogin())
         {
-            qDebug() << "[ IN DATABASES::FINDUSER {Login = Login} ]";
-            if (users[i].getPassword() == fUser.getPassword())
+            qDebug() << "[DataBases::findUser] Login match.";
+            if (usersList[i].getPassword() == fUser.getPassword())
             {
-                qDebug() << "[ IN DATABASES::FINDUSER {Password = Password} ]";
-                return(users[i].getRole());
+                qDebug() << "[DataBases::findUser] Passwords match.";
+                return(usersList[i].getRole());
             }
+            qDebug() << "[DataBases::findUser] Passwords unmatch.";
         }
+        qDebug() << "[DataBases::findUser] Login unmatch.";
     }
     return(-1);
+}
+
+int DataBases::getListUserLen()
+{
+    qDebug() << usersList.length();
+    return(usersList.length());
+}
+
+User DataBases::getUser(int i)
+{
+    return(usersList[i]);
 }

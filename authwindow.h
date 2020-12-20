@@ -21,14 +21,14 @@ public:
     //Возвращает значение поля linePassword
     QString getLinePassword();
 
-
+    int mode;
 
 public slots:
     //! Обрабатывает подтверждение диалога.
     void accept() Q_DECL_OVERRIDE;
 
 private:
-    DataBases db;
+    DataBases* db;
     Ui::AuthWindow *ui;
 
 };

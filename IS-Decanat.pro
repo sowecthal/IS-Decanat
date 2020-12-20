@@ -13,13 +13,16 @@ SOURCES += \
     databases.cpp \
     dataclasses/user.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    #tables/userstable.cpp
 
 HEADERS += \
     authwindow.h \
+    config.h \
     databases.h \
     dataclasses/user.h \
-    mainwindow.h
+    mainwindow.h \
+    #tables/userstable.h
 
 FORMS += \
     authwindow.ui \

@@ -16,25 +16,12 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QComboBox" name="comboBox">
-        <item>
-         <property name="text">
-          <string>Пользователи</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Группы</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Дисциплины</string>
-         </property>
-        </item>
-       </widget>
+       <widget class="QComboBox" name="comboBox"/>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineFind"/>
       </item>
      </layout>
     </item>

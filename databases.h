@@ -5,21 +5,24 @@
 
 #include <QString>
 #include <QList>
-
+#include <QTableView>
 
 class DataBases
 {
 
 public:
-
-    QList<User> users;
+    QList<User> usersList;
 
     DataBases();
 
     void loadAll();
 
-    void insertUser(QString iPassword, QString iLogin, int iRole);
+    void insertUser(QString iLogin, QString iPassword, int iRole);
 
     int findUser(User fUser);
+
+    int getListUserLen();
+
+    User getUser(int i);
 };
 #endif // DATABASES_H

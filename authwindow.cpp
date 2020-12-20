@@ -11,8 +11,7 @@ AuthWindow::AuthWindow(DataBases sDB, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AuthWindow)
 {
-    qDebug() << "[ IN AUTHWINDOW ]";
-    db = sDB;
+    db = &sDB;
     ui->setupUi(this);
     this->setWindowTitle("Авторизация");
     ui->lineLogin->setMaxLength(30);
@@ -27,13 +26,11 @@ AuthWindow::~AuthWindow()
     delete ui;
 }
 
-
-
 void AuthWindow::accept()
 {
     User nUser(ui->lineLogin->text(), ui->linePassword->text(), -1);
 
-    nUser.setRole(db.findUser(nUser));
+    nUser.setRole(db->findUser(nUser));
 
     if (nUser.getRole() == -1)
     {
@@ -41,6 +38,7 @@ void AuthWindow::accept()
     }
     else
     {
+        mode = nUser.getRole();
         QDialog::accept();
     }
 }
