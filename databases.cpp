@@ -9,6 +9,7 @@
 
 DataBases::DataBases()
 {
+    qDebug() << "NEW DATABASES";
     loadAll();
 }
 
@@ -34,7 +35,6 @@ void DataBases::loadAll()
         QDataStream inStream(&inFile);
         while (!inStream.atEnd())
         {
-            qDebug() << "[DataBases::loadAll] New iteration";
             QString tmpPassword, tmpLogin;
             int tmpRole;
             inStream >> tmpLogin >> tmpPassword >> tmpRole;
@@ -43,7 +43,7 @@ void DataBases::loadAll()
             usersList.push_back(newUser);
         }
     }
-    qDebug() << usersList.length();
+
     inFile.close();
 }
 
@@ -66,15 +66,4 @@ int DataBases::findUser(User fUser)
         qDebug() << "[DataBases::findUser] Login unmatch.";
     }
     return(-1);
-}
-
-int DataBases::getListUserLen()
-{
-    qDebug() << usersList.length();
-    return(usersList.length());
-}
-
-User DataBases::getUser(int i)
-{
-    return(usersList[i]);
 }

@@ -5,11 +5,10 @@
 #include <QDebug>
 #include <QStandardItemModel>
 
-MainWindow::MainWindow(DataBases sDB, QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(DataBases &sDB, QWidget *parent)  : db(sDB),
+    QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    db = &sDB;
     ui->setupUi(this);
     ui->toolBar->setMovable(false);
     ui->toolBar->orientationChanged(Qt::Vertical);
@@ -45,23 +44,19 @@ void MainWindow::setMode(int sMode)
 
 void MainWindow::setData()
 {
-    qDebug() << db->getListUserLen();
-    QStandardItemModel model(db->getListUserLen(), 3);
-     qDebug() << "Y";
-    model.setHorizontalHeaderItem(0, new QStandardItem(QString("Логин")));
-    model.setHorizontalHeaderItem(1, new QStandardItem(QString("Пароль")));
-    model.setHorizontalHeaderItem(2, new QStandardItem(QString("Роль")));
-    qDebug() << "Y";
-    for(int i = 0; i < db->getListUserLen() ; i++)
+    QStandardItemModel* model = new QStandardItemModel(db.usersList.length(), 3, this);
+    model->setHorizontalHeaderItem(0, new QStandardItem(QString("Логин")));
+    model->setHorizontalHeaderItem(1, new QStandardItem(QString("Пароль")));
+    model->setHorizontalHeaderItem(2, new QStandardItem(QString("Роль")));
+
+    for(int i = 0; i < db.usersList.length() ; i++)
     {
-        User nowUser = db->getUser(i);
-        model.setItem(i,0,new QStandardItem(QString(nowUser.getLogin())));
-        model.setItem(i,1,new QStandardItem(QString(nowUser.getPassword())));
-        model.setItem(i,2,new QStandardItem(QString(nowUser.getRole())));
+        model->setItem(i,0,new QStandardItem(QString(db.usersList[i].getLogin())));
+        model->setItem(i,1,new QStandardItem(QString(db.usersList[i].getPassword())));
+        model->setItem(i,2,new QStandardItem(QString(Config::roles[db.usersList[i].getRole()])));
+
     }
-    qDebug() << "Y";
-    ui->tableView->setModel(&model);
-    qDebug() << "Y";
+    ui->tableView->setModel(model);
 }
 
 void MainWindow::on_lineEdit_returnPressed()

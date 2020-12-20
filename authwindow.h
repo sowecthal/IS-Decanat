@@ -14,7 +14,7 @@ class AuthWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit AuthWindow(DataBases sDB, QWidget *parent = nullptr);
+    explicit AuthWindow(DataBases &sDB, QWidget *parent = nullptr);
     ~AuthWindow();
     //Возвращает значение поля lineLogin
     QString getLineLogin();
@@ -28,7 +28,7 @@ public slots:
     void accept() Q_DECL_OVERRIDE;
 
 private:
-    DataBases* db;
+    DataBases& db;
     Ui::AuthWindow *ui;
 
 };

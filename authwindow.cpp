@@ -7,11 +7,10 @@
 #include <QFile>
 #include <QDebug>
 
-AuthWindow::AuthWindow(DataBases sDB, QWidget *parent) :
+AuthWindow::AuthWindow(DataBases &sDB, QWidget *parent) : db(sDB),
     QDialog(parent),
     ui(new Ui::AuthWindow)
 {
-    db = &sDB;
     ui->setupUi(this);
     this->setWindowTitle("Авторизация");
     ui->lineLogin->setMaxLength(30);
@@ -30,7 +29,7 @@ void AuthWindow::accept()
 {
     User nUser(ui->lineLogin->text(), ui->linePassword->text(), -1);
 
-    nUser.setRole(db->findUser(nUser));
+    nUser.setRole(db.findUser(nUser));
 
     if (nUser.getRole() == -1)
     {

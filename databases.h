@@ -21,8 +21,5 @@ public:
 
     int findUser(User fUser);
 
-    int getListUserLen();
-
-    User getUser(int i);
 };
 #endif // DATABASES_H

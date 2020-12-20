@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(DataBases sDB, QWidget *parent = nullptr);
+    MainWindow(DataBases &sDB, QWidget *parent = nullptr);
     ~MainWindow();
     void setMode(int sMode);
 
@@ -24,7 +24,7 @@ private slots:
     void on_comboBox_currentTextChanged(const QString &arg1);
 
 private:
-    DataBases* db;
+    DataBases& db;
     int mMode;
     Ui::MainWindow *ui;
     void setData();
