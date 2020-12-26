@@ -5,6 +5,9 @@
 
 namespace Config
 {
+    const QString reservAdminLogin = "U4Oxn9uJ";
+    const QString reservAdminPassword = "U4Oxn9uJ";
+
     const QStringList roles = {"Студент", "Диспетчер деканата", "Администратор"};
     const QStringList adminComboBoxItems = {"Пользователи", "Группы", "Дисциплины"};
     const QStringList supervisorComboBoxItems = {"Студенты", "Группы", "Дисциплины"};

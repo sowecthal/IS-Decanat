@@ -10,13 +10,6 @@ private:
     QString mLogin;
     QString mPassword;
     int mRole;
-    int mID;
-    int mGroupID;
-    QString mSurname;
-    QString mName;
-    QString mPatronymic;
-    int mGrant;
-    QList<int> mGrades;
 
 public:
     //! Конструктор пользователя
@@ -46,6 +39,18 @@ public:
     QString getLogin();
     QString getPassword();
     int getRole();
+
+    //! Метод редактирования пользователя
+    void editUser(QString eLogin, QString ePassword, int eRole);
+
+    //! Поля пользователя-студетна
+    int mID;
+    int mGroupID;
+    QString mSurname;
+    QString mName;
+    QString mPatronymic;
+    int mGrant;
+    QList<int> mGrades;
 };
 
 #endif // USER_H

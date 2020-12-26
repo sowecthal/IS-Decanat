@@ -2,6 +2,7 @@
 #include "ui_authwindow.h"
 #include "databases.h"
 #include "dataclasses/user.h"
+#include "config.h"
 
 #include <QMessageBox>
 #include <QFile>
@@ -27,7 +28,11 @@ AuthWindow::~AuthWindow()
 
 void AuthWindow::accept()
 {
-    int role = db.findAuthUser(ui->lineLogin->text(), ui->linePassword->text());
+    int role;
+
+    //!Если значения полей совпадают с авторизационными даннымы резервного администратора - войти как администратор, иначе поиск пользователя
+    if (ui->lineLogin->text() == Config::reservAdminLogin && ui->linePassword->text() == Config::reservAdminPassword) role = 2;
+    else role = db.findAuthUser(ui->lineLogin->text(), ui->linePassword->text());
 
     if (role == -1)
     {
@@ -40,12 +45,3 @@ void AuthWindow::accept()
     }
 }
 
-QString AuthWindow::getLineLogin()
-{
-    return(ui->lineLogin->text());
-}
-
-QString AuthWindow::getLinePassword()
-{
-    return(ui->linePassword->text());
-}

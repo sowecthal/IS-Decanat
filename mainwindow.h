@@ -25,6 +25,8 @@ private slots:
 
     void on_tableView_activated(const QModelIndex &index);
 
+    void addNoteThis();
+
 private:
     DataBases& db;
     int mMode;

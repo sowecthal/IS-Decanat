@@ -16,10 +16,6 @@ class AuthWindow : public QDialog
 public:
     explicit AuthWindow(DataBases &sDB, QWidget *parent = nullptr);
     ~AuthWindow();
-    //Возвращает значение поля lineLogin
-    QString getLineLogin();
-    //Возвращает значение поля linePassword
-    QString getLinePassword();
 
     int mode;
 
@@ -30,7 +26,6 @@ public slots:
 private:
     DataBases& db;
     Ui::AuthWindow *ui;
-
 };
 
 #endif // AUTHWINDOW_H

@@ -11,20 +11,19 @@ class DataBases
 {
 
 public:
-    QList<User> usersList;
-
     DataBases();
 
-    void loadAll();
-
+    //! Метод добавления пользователя
     void insertUser(QString iLogin, QString iPassword, int iRole, int sID = -1, int sGroupID = -1, QString sSurname = " ",
                     QString sName = " ", QString sPatronymic = " ", int sGrant = -1, QList<int> sGrades = {});
-
-    //! Поиск пользователя для авторизации
+    //! Метод поиска пользователя для авторизации
     int findAuthUser(QString fLogin, QString fPassword);
     /* Возвращает значение поля mRole, найденного пользователя;
      * В противном случае, возвращает -1
      */
+    //! Метод перезаписи файла пользоватей
+    void overwriteUsers();
 
+    QList<User> usersList;
 };
 #endif // DATABASES_H

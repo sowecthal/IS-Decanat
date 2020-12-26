@@ -14,6 +14,7 @@ class EditUserDialog : public QDialog
 
 public:
     explicit EditUserDialog(User &sUser, QWidget *parent = nullptr);
+    EditUserDialog(QWidget *parent = nullptr);
     ~EditUserDialog();
 
 private:

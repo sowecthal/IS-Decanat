@@ -78,14 +78,35 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 
 void MainWindow::on_tableView_activated(const QModelIndex &index)
 {
-    User user = db.usersList[index.row()];
-    EditUserDialog eud(user, this);
-    eud.setWindowTitle(tr("Редактирование пользователя"));
+    //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
+    User* user = &db.usersList[index.row()];
+    EditUserDialog eud(*user, this);
+    eud.setWindowTitle("Редактирование пользователя");
 
-    //noteDlg.edit(note.title(), note.text(), note.date());
+    //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
     if (eud.exec() == QDialog::Accepted)
     {
-        return;
+        db.overwriteUsers();
+        setData();
     }
+    qDebug() << "[MainWindow::on_tableView_activated]";
+}
+
+void MainWindow::addNoteThis()
+{
+    if (ui->comboBox->currentText() == "Пользователи")
+    {
+        User* user = new User("", "", -1);
+        EditUserDialog eud(*user, this);
+        eud.setWindowTitle("Создание пользователя");
+
+        //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
+        if (eud.exec() == QDialog::Accepted)
+        {
+            db.insertUser();
+            setData();
+        }
+    }
+
     qDebug() << "[MainWindow::on_tableView_activated]";
 }

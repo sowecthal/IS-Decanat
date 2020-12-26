@@ -9,8 +9,44 @@
 
 DataBases::DataBases()
 {
-    qDebug() << "NEW DATABASES";
-    loadAll();
+    QFile inFile("data/Users.bin");
+
+    if (inFile.open(QIODevice::ReadOnly))
+    {
+        QDataStream inStream(&inFile);
+        while (!inStream.atEnd())
+        {
+            QString tmpPassword, tmpLogin;
+            int tmpRole;
+            inStream >> tmpLogin >> tmpPassword >> tmpRole;
+            if (tmpRole == 0)
+            {
+                QString tmpsSurname, tmpName, tmpPatronymic;
+                int tmpID, tmpGroupID, tmpLen, tmpGrade, tmpGrant, tmpDisc;
+                QList<int> tmpGrades;
+                inStream >> tmpID >> tmpGroupID >> tmpsSurname >> tmpName >> tmpPatronymic >> tmpGrant >> tmpLen;
+                for (int i; i<tmpLen; i++)
+                {
+                    inStream >> tmpDisc;
+                    inStream >> tmpGrade;
+                    tmpGrades.push_back(tmpDisc);
+                    tmpGrades.push_back(tmpGrade);
+                }
+
+                User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
+                             tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
+                usersList.push_back(newUser);
+            }
+            else
+            {
+                User newUser(tmpLogin, tmpPassword, tmpRole);
+                usersList.push_back(newUser);
+            }
+
+        }
+    }
+
+    inFile.close();
 }
 
 void DataBases::insertUser(QString iLogin, QString iPassword,  int iRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, int sGrant, QList<int> sGrades)
@@ -35,48 +71,32 @@ void DataBases::insertUser(QString iLogin, QString iPassword,  int iRole, int sI
     outFile.close();
 }
 
-void DataBases::loadAll()
+void DataBases::overwriteUsers()
 {
-    QFile inFile("data/Users.bin");
+    qDebug() << "[DataBases::overwriteUsers]";
+    QFile outFile("data/Users.bin");
 
-    if (inFile.open(QIODevice::ReadOnly))
+    if (outFile.open(QIODevice::WriteOnly))
     {
-        QDataStream inStream(&inFile);
-        while (!inStream.atEnd())
+        QDataStream outStream(&outFile);
+        qDebug() << "[DataBases::overwriteUsers] usersList.length(): " << usersList.length();
+        for (auto &i : usersList)
         {
-            QString tmpPassword, tmpLogin;
-            int tmpRole;
-            inStream >> tmpLogin >> tmpPassword >> tmpRole;
-            if (tmpRole == 0)
+            outStream << i.getLogin() << i.getPassword() << i.getRole();
+            qDebug() << "[DataBases::overwriteUsers] Now: " << i.getLogin();
+            //Если студент - заносятся поля студента
+            if (i.getRole() == 0)
             {
-                QString tmpsSurname, tmpName, tmpPatronymic;
-                int tmpID, tmpGroupID, tmpLen, tmpGrade, tmpGrant, tmpDisc;
-                QList<int> tmpGrades;
-                //, int sGroupID, QString sName,
-                //, bool sGrant, QList<int> sGrades
-                inStream >> tmpID >> tmpGroupID >> tmpsSurname >> tmpName >> tmpPatronymic >> tmpGrant >> tmpLen;
-                for (int i; i<tmpLen; i++)
+                outStream << i.mID << i.mGroupID << i.mSurname << i.mName
+                          << i.mPatronymic << i.mGrant << i.mGrades.length();
+                for (auto &j : i.mGrades)
                 {
-                    inStream >> tmpDisc;
-                    inStream >> tmpGrade;
-                    tmpGrades.push_back(tmpDisc);
-                    tmpGrades.push_back(tmpGrade);
+                    outStream << j;
                 }
-
-                User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
-                             tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
-                usersList.push_back(newUser);
             }
-            else
-            {
-                User newUser(tmpLogin, tmpPassword, tmpRole);
-                usersList.push_back(newUser);
-            }
-
         }
     }
-
-    inFile.close();
+    outFile.close();
 }
 
 int DataBases::findAuthUser(QString fLogin, QString fPassword)

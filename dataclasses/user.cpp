@@ -10,7 +10,6 @@ User::User(QString uLogin, QString uPassword, int uRole)
 
 User::User(QString uLogin, QString uPassword, int uRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, int sGrant, QList<int> sGrades)
 {
-    qDebug() << "[User::User] Сreate";
     mLogin = uLogin;
     mPassword = uPassword;
     mRole = uRole;
@@ -37,4 +36,22 @@ QString User::getPassword()
 int User::getRole()
 {
     return(mRole);
+}
+
+void User::editUser(QString eLogin, QString ePassword, int eRole)
+{
+    mLogin = eLogin;
+    mPassword = ePassword;
+    mRole = eRole;
+    if (mRole == 0)
+    {
+        // Для удобства распознавания студентов, при изменении роли на "студент", логин помещается в строку с фамилией.
+        mSurname = eLogin;
+        mID = -1;
+        mGroupID = -1;
+        mName = " ";
+        mPatronymic = " ";
+        mGrant = -1;
+        mGrades = {};
+    }
 }

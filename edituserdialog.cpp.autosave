@@ -3,6 +3,20 @@
 
 #include <QDebug>
 
+
+EditUserDialog::EditUserDialog(QWidget *parent = nullptr) : mUser,
+    QDialog(parent),
+    ui(new Ui::EditUserDialog)
+{
+    ui->setupUi(this);
+    ui->lineLogin->setMaxLength(30);
+    ui->linePassword->setMaxLength(30);
+    ui->lineLogin->setPlaceholderText("Имя пользователя");
+    ui->linePassword->setPlaceholderText("Пароль");
+    ui->linePassword->setText(mUser.getPassword());
+    ui->lineLogin->setText(mUser.getLogin());
+}
+
 EditUserDialog::EditUserDialog(User &sUser, QWidget *parent) : mUser(sUser),
     QDialog(parent),
     ui(new Ui::EditUserDialog)
