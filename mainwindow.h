@@ -23,6 +23,8 @@ private slots:
 
     void on_comboBox_currentTextChanged(const QString &arg1);
 
+    void on_tableView_activated(const QModelIndex &index);
+
 private:
     DataBases& db;
     int mMode;

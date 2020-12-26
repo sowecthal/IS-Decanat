@@ -27,6 +27,9 @@
     </item>
     <item row="1" column="0">
      <widget class="QTableView" name="tableView">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOn</enum>
       </property>
@@ -35,6 +38,12 @@
       </property>
       <property name="autoScroll">
        <bool>true</bool>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
       </property>
       <property name="gridStyle">
        <enum>Qt::DotLine</enum>
@@ -77,6 +86,8 @@
     <property name="title">
      <string>Файл</string>
     </property>
+    <addaction name="separator"/>
+    <addaction name="action"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -118,6 +129,11 @@
    </property>
    <property name="text">
     <string>Удалить запись</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Завершить сеанс</string>
    </property>
   </action>
  </widget>

@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "config.h"
+#include "edituserdialog.h"
 
 #include <QDebug>
 #include <QStandardItemModel>
@@ -73,4 +74,18 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
             setData();
         }
     }
+}
+
+void MainWindow::on_tableView_activated(const QModelIndex &index)
+{
+    User user = db.usersList[index.row()];
+    EditUserDialog eud(user, this);
+    eud.setWindowTitle(tr("Редактирование пользователя"));
+
+    //noteDlg.edit(note.title(), note.text(), note.date());
+    if (eud.exec() == QDialog::Accepted)
+    {
+        return;
+    }
+    qDebug() << "[MainWindow::on_tableView_activated]";
 }

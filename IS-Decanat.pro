@@ -12,6 +12,7 @@ SOURCES += \
     authwindow.cpp \
     databases.cpp \
     dataclasses/user.cpp \
+    edituserdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     #tables/userstable.cpp
@@ -21,11 +22,13 @@ HEADERS += \
     config.h \
     databases.h \
     dataclasses/user.h \
+    edituserdialog.h \
     mainwindow.h \
     #tables/userstable.h
 
 FORMS += \
     authwindow.ui \
+    edituserdialog.ui \
     mainwindow.ui
 
 # Default rules for deployment.

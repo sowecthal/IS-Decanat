@@ -1,4 +1,5 @@
 #include "user.h"
+#include <QDebug>
 
 User::User(QString uLogin, QString uPassword, int uRole)
 {
@@ -7,9 +8,19 @@ User::User(QString uLogin, QString uPassword, int uRole)
     mRole = uRole;
 }
 
-void User::setRole(int sRole)
+User::User(QString uLogin, QString uPassword, int uRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, int sGrant, QList<int> sGrades)
 {
-    mRole = sRole;
+    qDebug() << "[User::User] Сreate";
+    mLogin = uLogin;
+    mPassword = uPassword;
+    mRole = uRole;
+    mID = sID;
+    mGroupID = sGroupID;
+    mSurname = sSurname;
+    mName = sName;
+    mPatronymic = sPatronymic;
+    mGrant = sGrant;
+    mGrades = sGrades;
 }
 
 

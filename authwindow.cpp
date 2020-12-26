@@ -27,17 +27,15 @@ AuthWindow::~AuthWindow()
 
 void AuthWindow::accept()
 {
-    User nUser(ui->lineLogin->text(), ui->linePassword->text(), -1);
+    int role = db.findAuthUser(ui->lineLogin->text(), ui->linePassword->text());
 
-    nUser.setRole(db.findUser(nUser));
-
-    if (nUser.getRole() == -1)
+    if (role == -1)
     {
         QMessageBox::warning(this, "Ошибка", "Неверное имя пользователя или пароль, попробуйте заново.");
     }
     else
     {
-        mode = nUser.getRole();
+        mode = role;
         QDialog::accept();
     }
 }

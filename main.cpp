@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     if (aw.exec() == QDialog::Accepted)
     {
         w.show();
+
         w.setMode(aw.mode);
     }
 
