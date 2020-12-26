@@ -42,8 +42,7 @@ void User::editUser(QString eLogin, QString ePassword, int eRole)
 {
     mLogin = eLogin;
     mPassword = ePassword;
-    mRole = eRole;
-    if (mRole == 0)
+    if (mRole != eRole)
     {
         // Для удобства распознавания студентов, при изменении роли на "студент", логин помещается в строку с фамилией.
         mSurname = eLogin;
@@ -54,4 +53,5 @@ void User::editUser(QString eLogin, QString ePassword, int eRole)
         mGrant = -1;
         mGrades = {};
     }
+    mRole = eRole;
 }

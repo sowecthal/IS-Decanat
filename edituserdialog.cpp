@@ -2,6 +2,7 @@
 #include "ui_edituserdialog.h"
 
 #include <QDebug>
+#include <QMessageBox>
 
 EditUserDialog::EditUserDialog(User &sUser, QWidget *parent) : mUser(sUser),
     QDialog(parent),
@@ -36,10 +37,12 @@ int EditUserDialog::getSelectedRole()
 void EditUserDialog::accept()
 {
     //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept
-    if (mUser.getLogin() != ui->lineLogin->text() || mUser.getPassword() != ui->linePassword->text() ||  mUser.getRole() != getSelectedRole())
+    if (getSelectedRole() == -1 || ui->lineLogin->text().isEmpty() || ui->linePassword->text().isEmpty())
+        QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
+    else if (mUser.getLogin() != ui->lineLogin->text() || mUser.getPassword() != ui->linePassword->text() ||  mUser.getRole() != getSelectedRole())
     {
         mUser.editUser(ui->lineLogin->text(), ui->linePassword->text(), getSelectedRole());
         QDialog::accept();
     }
-    QDialog::close();
+    else QDialog::close();
 }

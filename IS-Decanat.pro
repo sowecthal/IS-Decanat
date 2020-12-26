@@ -11,6 +11,8 @@ CONFIG += c++11
 SOURCES += \
     authwindow.cpp \
     databases.cpp \
+    dataclasses/discipline.cpp \
+    dataclasses/group.cpp \
     dataclasses/user.cpp \
     edituserdialog.cpp \
     main.cpp \
@@ -21,6 +23,8 @@ HEADERS += \
     authwindow.h \
     config.h \
     databases.h \
+    dataclasses/discipline.h \
+    dataclasses/group.h \
     dataclasses/user.h \
     edituserdialog.h \
     mainwindow.h \

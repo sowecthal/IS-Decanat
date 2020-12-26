@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QStandardItemModel>
+#include <QMessageBox>
 
 MainWindow::MainWindow(DataBases &sDB, QWidget *parent)  : db(sDB),
     QMainWindow(parent)
@@ -14,6 +15,8 @@ MainWindow::MainWindow(DataBases &sDB, QWidget *parent)  : db(sDB),
     ui->toolBar->setMovable(false);
     ui->toolBar->orientationChanged(Qt::Vertical);
     ui->lineFind->setPlaceholderText("Поиск по таблице");
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+
 }
 
 MainWindow::~MainWindow()
@@ -45,51 +48,88 @@ void MainWindow::setMode(int sMode)
 
 void MainWindow::setData()
 {
-    QStandardItemModel* model = new QStandardItemModel(db.usersList.length(), 3, this);
-    model->setHorizontalHeaderItem(0, new QStandardItem(QString("Логин")));
-    model->setHorizontalHeaderItem(1, new QStandardItem(QString("Пароль")));
-    model->setHorizontalHeaderItem(2, new QStandardItem(QString("Роль")));
-
-    for(int i = 0; i < db.usersList.length() ; i++)
+    if (ui->comboBox->currentText() == "Пользователи")
     {
-        model->setItem(i,0,new QStandardItem(QString(db.usersList[i].getLogin())));
-        model->setItem(i,1,new QStandardItem(QString(db.usersList[i].getPassword())));
-        model->setItem(i,2,new QStandardItem(QString(Config::roles[db.usersList[i].getRole()])));
+        model = new QStandardItemModel(db.usersList.length(), 3, this);
+        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Логин")));
+        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Пароль")));
+        model->setHorizontalHeaderItem(2, new QStandardItem(QString("Роль")));
 
+        for(int i = 0; i < db.usersList.length() ; i++)
+        {
+            model->setItem(i,0,new QStandardItem(QString(db.usersList[i].getLogin())));
+            model->setItem(i,1,new QStandardItem(QString(db.usersList[i].getPassword())));
+            model->setItem(i,2,new QStandardItem(QString(Config::roles[db.usersList[i].getRole()])));
+        }
+        ui->tableView->setModel(model);
     }
-    ui->tableView->setModel(model);
+    else if (ui->comboBox->currentText() == "Группы")
+    {
+        model = new QStandardItemModel(db.groupsList.length(), 2, this);
+        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Номер группы")));
+        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Кол-во студентов")));
+
+        for(int i = 0; i < db.groupsList.length() ; i++)
+        {
+            model->setItem(i,0,new QStandardItem(QString(db.groupsList[i].getLogin())));
+            model->setItem(i,1,new QStandardItem(QString(db.groupsList[i].getPassword())));
+        }
+        ui->tableView->setModel(model);
+    }
+    else if (ui->comboBox->currentText() == "Студенты")
+    {
+        QList<User> students;
+        for (User &i : db.usersList)
+        {
+            if (i.getRole() == 0) students.append(i);
+        }
+        model = new QStandardItemModel(students.length(), 5, this);
+        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Фамилия")));
+        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Имя")));
+        model->setHorizontalHeaderItem(2, new QStandardItem(QString("Отчество")));
+        model->setHorizontalHeaderItem(3, new QStandardItem(QString("Группа")));
+        model->setHorizontalHeaderItem(4, new QStandardItem(QString("Стипендия")));
+
+        for(int i = 0; i<students.length(); i++)
+        {
+            model->setItem(i,0,new QStandardItem(QString(students[i].mSurname)));
+            model->setItem(i,1,new QStandardItem(QString(students[i].mName)));
+            model->setItem(i,1,new QStandardItem(QString(students[i].mPatronymic)));
+            model->setItem(i,1,new QStandardItem(QString(students[i].mGroupID)));
+            model->setItem(i,1,new QStandardItem(QString(students[i].mGrant)));
+        }
+        ui->tableView->setModel(model);
+    }
+
 }
 
-void MainWindow::on_lineEdit_returnPressed()
+void MainWindow::lineFindReturn()
 {
-    qDebug() << "[MainWindow::on_lineEdit_returnPressed]";
+    qDebug() << "[MainWindow::lineFindReturn]";
 }
 
 void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 {
-    if (mMode == 2)
-    {
-        if (arg1 == "Пользователи")
-        {
-            setData();
-        }
-    }
+    setData();
 }
 
 void MainWindow::on_tableView_activated(const QModelIndex &index)
 {
-    //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
-    User* user = &db.usersList[index.row()];
-    EditUserDialog eud(*user, this);
-    eud.setWindowTitle("Редактирование пользователя");
-
-    //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
-    if (eud.exec() == QDialog::Accepted)
+    if (ui->comboBox->currentText() == "Пользователи")
     {
-        db.overwriteUsers();
-        setData();
+        //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
+        User* user = &db.usersList[index.row()];
+        EditUserDialog eud(*user, this);
+        eud.setWindowTitle("Редактирование пользователя");
+
+        //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
+        if (eud.exec() == QDialog::Accepted)
+        {
+            db.overwriteUsers();
+            setData();
+        }
+        qDebug() << "[MainWindow::on_tableView_activated]";
     }
-    qDebug() << "[MainWindow::on_tableView_activated]";
 }
 
 void MainWindow::addNoteThis()
@@ -103,10 +143,28 @@ void MainWindow::addNoteThis()
         //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
         if (eud.exec() == QDialog::Accepted)
         {
-            db.insertUser();
+            db.usersList.push_back(*user);
+            db.overwriteUsers();
             setData();
         }
     }
-
     qDebug() << "[MainWindow::on_tableView_activated]";
+}
+
+void MainWindow::removeNoteThis()
+{
+    if (ui->comboBox->currentText() == "Пользователи")
+    {
+        QModelIndexList idc = ui->tableView->selectionModel()->selectedRows();
+        //User dUser = db.usersList.value(idc[0].row());
+        if (QMessageBox::question(this, QString("Подтверждение удаления"),QString("Вы уверены, что хотите удалить заметку?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+            db.usersList.removeAt(idc[0].row());
+
+        //if (rows.length() == 0) QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
+
+
+        db.overwriteUsers();
+        setData();
+
+    }
 }

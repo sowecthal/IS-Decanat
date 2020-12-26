@@ -1,5 +1,6 @@
 #include "databases.h"
 #include "dataclasses/user.h"
+#include "dataclasses/group.h"
 
 #include <QDebug>
 #include <QFile>
@@ -8,6 +9,11 @@
 #include <QStandardItemModel>
 
 DataBases::DataBases()
+{
+    loadUsers();
+}
+
+void DataBases::loadUsers()
 {
     QFile inFile("data/Users.bin");
 
@@ -42,10 +48,48 @@ DataBases::DataBases()
                 User newUser(tmpLogin, tmpPassword, tmpRole);
                 usersList.push_back(newUser);
             }
-
         }
     }
 
+    inFile.close();
+}
+
+void DataBases::loadGroups()
+{
+    QFile inFile("data/Groups.bin");
+
+    if (inFile.open(QIODevice::ReadOnly))
+    {
+        QDataStream inStream(&inFile);
+        while (!inStream.atEnd())
+        {
+            QString tmpNumber;
+            int tmpGroupID;
+            inStream >> tmpGroupID >> tmpNumber;
+
+            QList <User*> GroupsStudents;
+            for (User &i : usersList)
+            {
+                //Если найден пользователь, прикрепленный к группе - добавляем в список студентов
+                if (i.mGroupID == tmpGroupID)
+                {
+                    GroupsStudents.append(&i);
+                }
+            }
+
+            /*for (int i; i<tmpLen; i++)
+            {
+                inStream >> tmpDisc;
+                inStream >> tmpGrade;
+                tmpGrades.push_back(tmpDisc);
+                tmpGrades.push_back(tmpGrade);
+            }
+
+            User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
+                tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
+            usersList.push_back(newUser);*/
+        }
+    }
     inFile.close();
 }
 
@@ -118,4 +162,12 @@ int DataBases::findAuthUser(QString fLogin, QString fPassword)
         qDebug() << "[DataBases::findUser] Login unmatch.";
     }
     return(-1);
+}
+
+User* DataBases::findStudent(int fID)
+{
+    for (User &i : usersList)
+    {
+        if (i.mID == fID) return(&i);
+    }
 }

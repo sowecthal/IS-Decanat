@@ -19,7 +19,6 @@ public:
     void setMode(int sMode);
 
 private slots:
-    void on_lineEdit_returnPressed();
 
     void on_comboBox_currentTextChanged(const QString &arg1);
 
@@ -27,9 +26,14 @@ private slots:
 
     void addNoteThis();
 
+    void removeNoteThis();
+
+    void lineFindReturn();
+
 private:
     DataBases& db;
     int mMode;
+    QStandardItemModel* model;
     Ui::MainWindow *ui;
     void setData();
 };
