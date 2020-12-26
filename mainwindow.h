@@ -32,6 +32,7 @@ private slots:
 
 private:
     DataBases& db;
+    QList <User> students;
     int mMode;
     QStandardItemModel* model;
     Ui::MainWindow *ui;

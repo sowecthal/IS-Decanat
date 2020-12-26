@@ -14,6 +14,7 @@ SOURCES += \
     dataclasses/discipline.cpp \
     dataclasses/group.cpp \
     dataclasses/user.cpp \
+    editstudentdialog.cpp \
     edituserdialog.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -26,12 +27,14 @@ HEADERS += \
     dataclasses/discipline.h \
     dataclasses/group.h \
     dataclasses/user.h \
+    editstudentdialog.h \
     edituserdialog.h \
     mainwindow.h \
     #tables/userstable.h
 
 FORMS += \
     authwindow.ui \
+    editstudentdialog.ui \
     edituserdialog.ui \
     mainwindow.ui
 

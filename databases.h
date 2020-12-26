@@ -32,5 +32,6 @@ private:
     void loadUsers();
     void loadGroups();
     void loadDisciplines();
+    void printKAL();
 };
 #endif // DATABASES_H

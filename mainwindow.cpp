@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "config.h"
 #include "edituserdialog.h"
+#include "editstudentdialog.h"
 
 #include <QDebug>
 #include <QStandardItemModel>
@@ -78,11 +79,12 @@ void MainWindow::setData()
     }
     else if (ui->comboBox->currentText() == "Студенты")
     {
-        QList<User> students;
-        for (User &i : db.usersList)
+        students.clear();
+        for (User& i : db.usersList)
         {
             if (i.getRole() == 0) students.append(i);
         }
+
         model = new QStandardItemModel(students.length(), 5, this);
         model->setHorizontalHeaderItem(0, new QStandardItem(QString("Фамилия")));
         model->setHorizontalHeaderItem(1, new QStandardItem(QString("Имя")));
@@ -130,13 +132,30 @@ void MainWindow::on_tableView_activated(const QModelIndex &index)
         }
         qDebug() << "[MainWindow::on_tableView_activated]";
     }
+    else if (ui->comboBox->currentText() == "Студенты")
+    {
+        //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
+        qDebug() <<students.length();
+        User* student = &students[index.row()];
+        qDebug() << student->getLogin();
+        EditStudentDialog esd(*student, this);
+        esd.setWindowTitle("Редактирование студента");
+
+        //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
+        if (esd.exec() == QDialog::Accepted)
+        {
+            db.overwriteUsers();
+            setData();
+        }
+        qDebug() << "[MainWindow::on_tableView_activated]";
+    }
 }
 
 void MainWindow::addNoteThis()
 {
     if (ui->comboBox->currentText() == "Пользователи")
     {
-        User* user = new User("", "", -1);
+        User* user = new User(" ", " ", -1);
         EditUserDialog eud(*user, this);
         eud.setWindowTitle("Создание пользователя");
 

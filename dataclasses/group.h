@@ -9,7 +9,7 @@
 class group
 {
 public:
-    group(int gGroupID, QString gNumber, QList <User&> gStudents);
+    group(int gGroupID, QString gNumber, QList <User*> gStudents);
 
     int mGroupID;
     QString mNumber;
