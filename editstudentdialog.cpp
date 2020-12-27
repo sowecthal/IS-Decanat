@@ -1,7 +1,9 @@
 #include "editstudentdialog.h"
 #include "ui_editstudentdialog.h"
 
-EditStudentDialog::EditStudentDialog(User &sStuden, QWidget *parent) : mStuden(sStuden),
+#include <QMessageBox>
+
+EditStudentDialog::EditStudentDialog(User &sStuden, QWidget *parent) : mStudent(sStuden),
     QDialog(parent),
     ui(new Ui::editStudentDialog)
 {
@@ -10,12 +12,13 @@ EditStudentDialog::EditStudentDialog(User &sStuden, QWidget *parent) : mStuden(s
     ui->lineName->setMaxLength(20);
     ui->linePatronymic->setMaxLength(20);
     ui->lineNumber->setMaxLength(10);
-    ui->lineSurname->setText(mStuden.mSurname);
-    ui->lineName->setText(mStuden.mName);
-    ui->linePatronymic->setText(mStuden.mPatronymic);
-    ui->lineNumber->setText(QString(mStuden.mID));
+    ui->lineSurname->setText(mStudent.mSurname);
+    ui->lineName->setText(mStudent.mName);
+    ui->linePatronymic->setText(mStudent.mPatronymic);
+    ui->lineNumber->setText(QString(mStudent.mID));
+    ui->labelLogin->setText(mStudent.getLogin());
 
-    switch (mStuden.mGrant)
+    switch (mStudent.mGrant)
     {
         case 0:
             ui->grantComboBox->setCurrentIndex(0);
@@ -34,3 +37,21 @@ EditStudentDialog::~EditStudentDialog()
 {
     delete ui;
 }
+
+void EditStudentDialog::accept()
+{
+    //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept
+    if (ui->lineSurname->text().isEmpty()|| ui->lineName->text().isEmpty() || ui->lineNumber->text().isEmpty())
+        QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
+    else if (mStudent.mSurname != ui->lineSurname->text() ||
+             mStudent.mName != ui->lineName->text() ||
+             mStudent.mPatronymic != ui->linePatronymic->text())
+    {
+        mStudent.mSurname = ui->lineSurname->text();
+        mStudent.mName = ui->lineName->text();
+        mStudent.mPatronymic = ui->linePatronymic->text();
+        QDialog::accept();
+    }
+    else QDialog::close();
+}
+

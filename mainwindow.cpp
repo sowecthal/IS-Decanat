@@ -82,23 +82,25 @@ void MainWindow::setData()
         students.clear();
         for (User& i : db.usersList)
         {
-            if (i.getRole() == 0) students.append(i);
+            if (i.getRole() == 0) students.push_back(&i);
         }
 
         model = new QStandardItemModel(students.length(), 5, this);
-        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Фамилия")));
-        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Имя")));
-        model->setHorizontalHeaderItem(2, new QStandardItem(QString("Отчество")));
-        model->setHorizontalHeaderItem(3, new QStandardItem(QString("Группа")));
-        model->setHorizontalHeaderItem(4, new QStandardItem(QString("Стипендия")));
+        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Студенческий билет")));
+        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Фамилия")));
+        model->setHorizontalHeaderItem(2, new QStandardItem(QString("Имя")));
+        model->setHorizontalHeaderItem(3, new QStandardItem(QString("Отчество")));
+        model->setHorizontalHeaderItem(4, new QStandardItem(QString("Группа")));
+        model->setHorizontalHeaderItem(5, new QStandardItem(QString("Стипендия")));
 
         for(int i = 0; i<students.length(); i++)
         {
-            model->setItem(i,0,new QStandardItem(QString(students[i].mSurname)));
-            model->setItem(i,1,new QStandardItem(QString(students[i].mName)));
-            model->setItem(i,1,new QStandardItem(QString(students[i].mPatronymic)));
-            model->setItem(i,1,new QStandardItem(QString(students[i].mGroupID)));
-            model->setItem(i,1,new QStandardItem(QString(students[i].mGrant)));
+            model->setItem(i,0,new QStandardItem(QString(students[i]->mID)));
+            model->setItem(i,1,new QStandardItem(QString(students[i]->mSurname)));
+            model->setItem(i,2,new QStandardItem(QString(students[i]->mName)));
+            model->setItem(i,3,new QStandardItem(QString(students[i]->mPatronymic)));
+            model->setItem(i,4,new QStandardItem(QString(students[i]->mGroupID)));
+            model->setItem(i,5,new QStandardItem(QString(students[i]->mGrant)));
         }
         ui->tableView->setModel(model);
     }
@@ -112,6 +114,23 @@ void MainWindow::lineFindReturn()
 
 void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 {
+    if (ui->comboBox->currentText() == "Студенты")
+    {
+        ui->addNoteThis->setDisabled(true);
+        ui->removeNoteThis->setDisabled(true);
+    }
+    else if (ui->comboBox->currentText() == "Оценки" || ui->comboBox->currentText() == "Стипендия")
+    {
+        ui->addNoteThis->setVisible(false);
+        ui->removeNoteThis->setVisible(false);
+    }
+    else
+    {
+        ui->addNoteThis->setDisabled(false);
+        ui->removeNoteThis->setDisabled(false);
+        ui->addNoteThis->setCheckable(true);
+        ui->removeNoteThis->setCheckable(true);
+    }
     setData();
 }
 
@@ -135,9 +154,7 @@ void MainWindow::on_tableView_activated(const QModelIndex &index)
     else if (ui->comboBox->currentText() == "Студенты")
     {
         //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
-        qDebug() <<students.length();
-        User* student = &students[index.row()];
-        qDebug() << student->getLogin();
+        User* student = students[index.row()];
         EditStudentDialog esd(*student, this);
         esd.setWindowTitle("Редактирование студента");
 
@@ -155,7 +172,7 @@ void MainWindow::addNoteThis()
 {
     if (ui->comboBox->currentText() == "Пользователи")
     {
-        User* user = new User(" ", " ", -1);
+        User* user = new User("", "", -1);
         EditUserDialog eud(*user, this);
         eud.setWindowTitle("Создание пользователя");
 
@@ -176,12 +193,9 @@ void MainWindow::removeNoteThis()
     {
         QModelIndexList idc = ui->tableView->selectionModel()->selectedRows();
         //User dUser = db.usersList.value(idc[0].row());
-        if (QMessageBox::question(this, QString("Подтверждение удаления"),QString("Вы уверены, что хотите удалить заметку?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        if (idc.length() == 0) QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
+        else if (QMessageBox::question(this, QString("Подтверждение удаления"),QString("Вы уверены, что хотите удалить заметку?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
             db.usersList.removeAt(idc[0].row());
-
-        //if (rows.length() == 0) QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
-
-
         db.overwriteUsers();
         setData();
 

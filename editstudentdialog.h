@@ -17,9 +17,12 @@ public:
     explicit EditStudentDialog(User &sStuden, QWidget *parent = nullptr);
     ~EditStudentDialog();
 
+private slots:
+    void accept() Q_DECL_OVERRIDE;
+
 private:
     Ui::editStudentDialog *ui;
-    User& mStuden;
+    User& mStudent;
 };
 
 #endif // EDITSTUDENTDIALOG_H
