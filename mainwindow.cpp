@@ -86,21 +86,19 @@ void MainWindow::setData()
         }
 
         model = new QStandardItemModel(students.length(), 5, this);
-        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Студенческий билет")));
-        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Фамилия")));
-        model->setHorizontalHeaderItem(2, new QStandardItem(QString("Имя")));
-        model->setHorizontalHeaderItem(3, new QStandardItem(QString("Отчество")));
-        model->setHorizontalHeaderItem(4, new QStandardItem(QString("Группа")));
-        model->setHorizontalHeaderItem(5, new QStandardItem(QString("Стипендия")));
+        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Фамилия")));
+        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Имя")));
+        model->setHorizontalHeaderItem(2, new QStandardItem(QString("Отчество")));
+        model->setHorizontalHeaderItem(3, new QStandardItem(QString("Группа")));
+        model->setHorizontalHeaderItem(4, new QStandardItem(QString("Студенческий билет")));
 
         for(int i = 0; i<students.length(); i++)
         {
-            model->setItem(i,0,new QStandardItem(QString(students[i]->mID)));
-            model->setItem(i,1,new QStandardItem(QString(students[i]->mSurname)));
-            model->setItem(i,2,new QStandardItem(QString(students[i]->mName)));
-            model->setItem(i,3,new QStandardItem(QString(students[i]->mPatronymic)));
-            model->setItem(i,4,new QStandardItem(QString(students[i]->mGroupID)));
-            model->setItem(i,5,new QStandardItem(QString(students[i]->mGrant)));
+            model->setItem(i,0,new QStandardItem(QString(students[i]->mSurname)));
+            model->setItem(i,1,new QStandardItem(QString(students[i]->mName)));
+            model->setItem(i,2,new QStandardItem(QString(students[i]->mPatronymic)));
+            model->setItem(i,3,new QStandardItem(QString::number(students[i]->mGroupID)));
+            model->setItem(i,4,new QStandardItem(QString::number(students[i]->mID)));
         }
         ui->tableView->setModel(model);
     }
@@ -155,12 +153,15 @@ void MainWindow::on_tableView_activated(const QModelIndex &index)
     {
         //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
         User* student = students[index.row()];
+        qDebug() << student->mSurname << student->mName << student->mPatronymic << student->mID;
         EditStudentDialog esd(*student, this);
         esd.setWindowTitle("Редактирование студента");
 
         //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
         if (esd.exec() == QDialog::Accepted)
         {
+            qDebug() << "[MainWindow::on_tableView_activated] if ui->comboBox->currentText() == Студенты";
+            qDebug() << student->mSurname << student->mName << student->mPatronymic << student->mID;
             db.overwriteUsers();
             setData();
         }
