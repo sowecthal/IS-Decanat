@@ -3,6 +3,11 @@
 #include "config.h"
 #include "edituserdialog.h"
 #include "editstudentdialog.h"
+#include "editdisciplinedialog.h"
+
+#include "dataclasses/user.h"
+#include "dataclasses/discipline.h"
+#include "dataclasses/group.h"
 
 #include <QDebug>
 #include <QStandardItemModel>
@@ -72,8 +77,8 @@ void MainWindow::setData()
 
         for(int i = 0; i < db.groupsList.length() ; i++)
         {
-            model->setItem(i,0,new QStandardItem(QString(db.groupsList[i].getLogin())));
-            model->setItem(i,1,new QStandardItem(QString(db.groupsList[i].getPassword())));
+            model->setItem(i,0,new QStandardItem(QString(db.groupsList[i].mNumber)));
+            model->setItem(i,1,new QStandardItem(QString(db.groupsList[i].mStudents.length())));
         }
         ui->tableView->setModel(model);
     }
@@ -102,7 +107,19 @@ void MainWindow::setData()
         }
         ui->tableView->setModel(model);
     }
+    else if (ui->comboBox->currentText() == "Дисциплины")
+    {
+        model = new QStandardItemModel(db.disciplinesList.length(), 2, this);
+        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Наименование")));
+        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Форма контроля")));
 
+        for(int i = 0; i < db.groupsList.length() ; i++)
+        {
+            model->setItem(i,0,new QStandardItem(QString(db.disciplinesList[i].mName)));
+            model->setItem(i,1,new QStandardItem(QString::number(db.disciplinesList[i].mForm)));
+        }
+        ui->tableView->setModel(model);
+    }
 }
 
 void MainWindow::lineFindReturn()
@@ -181,6 +198,20 @@ void MainWindow::addNoteThis()
         if (eud.exec() == QDialog::Accepted)
         {
             db.usersList.push_back(*user);
+            db.overwriteUsers();
+            setData();
+        }
+    }
+    else if (ui->comboBox->currentText() == "Дисциплины")
+    {
+        Discipline* discipline = new Discipline("", 0, 0, {});
+        EditDisciplineDialog edd(*discipline, this);
+        edd.setWindowTitle("Создание дисциплины");
+
+        //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
+        if (edd.exec() == QDialog::Accepted)
+        {
+            db.disciplinesList.push_back(*discipline);
             db.overwriteUsers();
             setData();
         }

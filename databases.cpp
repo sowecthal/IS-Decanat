@@ -1,6 +1,7 @@
 #include "databases.h"
 #include "dataclasses/user.h"
 #include "dataclasses/group.h"
+#include "dataclasses/discipline.h"
 
 #include <QDebug>
 #include <QFile>
@@ -11,6 +12,7 @@
 DataBases::DataBases()
 {
     loadUsers();
+
 }
 
 void DataBases::loadUsers()
@@ -52,6 +54,32 @@ void DataBases::loadUsers()
     }
 
     inFile.close();
+}
+
+void DataBases::loadDisciplines()
+{
+    QFile inFile("data/Disciplines.bin");
+
+    if (inFile.open(QIODevice::ReadOnly))
+    {
+        QDataStream inStream(&inFile);
+        while (!inStream.atEnd())
+        {
+            QString tmpName;
+            int tmpDisciplinesID, tmpForm, tmpLength, tmpGroupID;
+            inStream >> tmpName >> tmpDisciplinesID >> tmpForm >> tmpLength;
+
+            QList <int> groups;
+            for (int i; i<tmpLength; i++)
+            {
+               inStream >> tmpGroupID;
+               groups.append(tmpGroupID);
+            }
+            Discipline newDiscipline(tmpName, tmpDisciplinesID, tmpForm, groups);
+            disciplinesList.push_back(newDiscipline);
+
+        }
+    }
 }
 
 void DataBases::loadGroups()

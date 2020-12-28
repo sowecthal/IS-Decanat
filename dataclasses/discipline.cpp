@@ -1,6 +1,9 @@
 #include "discipline.h"
 
-discipline::discipline()
+Discipline::Discipline(QString sName, int sDisciplinesID, int sForm, QList<int> sGroups)
 {
-
+    mDisciplineID = sDisciplinesID;
+    mName = sName;
+    mForm = sForm;
+    mGroups = sGroups;
 }

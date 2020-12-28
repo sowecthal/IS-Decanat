@@ -12,5 +12,6 @@ namespace Config
     const QStringList adminComboBoxItems = {"Пользователи", "Группы", "Дисциплины"};
     const QStringList supervisorComboBoxItems = {"Студенты", "Группы", "Дисциплины"};
     const QStringList studentComboBoxItems = {"Оценки", "Стипендия"};
+    const QStringList disciplineFormOfControl = {"Зачёт", "Экзамен"};
 }
 #endif // CONFIG_H

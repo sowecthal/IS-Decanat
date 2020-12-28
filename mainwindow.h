@@ -1,6 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "dataclasses/user.h"
+#include "dataclasses/discipline.h"
+#include "dataclasses/group.h"
+
 #include <QMainWindow>
 #include <databases.h>
 #include <QStandardItemModel>

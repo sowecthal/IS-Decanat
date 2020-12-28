@@ -2,6 +2,8 @@
 #define DATABASES_H
 
 #include "dataclasses/user.h"
+#include "dataclasses/discipline.h"
+#include "dataclasses/group.h"
 
 #include <QString>
 #include <QList>
@@ -27,7 +29,8 @@ public:
     void overwriteUsers();
 
     QList<User> usersList;
-    QList<User> groupsList;
+    QList<Group> groupsList;
+    QList<Discipline> disciplinesList;
 private:
     void loadUsers();
     void loadGroups();

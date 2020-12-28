@@ -6,10 +6,10 @@
 #include <QString>
 #include <QList>
 
-class group
+class Group
 {
 public:
-    group(int gGroupID, QString gNumber, QList <User*> gStudents);
+    Group(int gGroupID, QString gNumber, QList <User*> gStudents);
 
     int mGroupID;
     QString mNumber;
