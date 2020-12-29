@@ -82,8 +82,8 @@ void DataBases::loadDisciplines()
                groups.append(tmpGroupID);
             }
             Discipline newDiscipline(tmpName, tmpDisciplinesID, tmpForm, groups);
-            disciplinesList.push_back(newDiscipline);
-            qDebug() << "[DataBases::loadDisciplines] Load discipline: " << tmpName << tmpDisciplinesID << tmpForm;
+            if (newDiscipline.mName!="") disciplinesList.push_back(newDiscipline);
+            qDebug() << "[DataBases::loadDisciplines]" << tmpName << tmpDisciplinesID << tmpForm << groups;
         }
         qDebug() << "[DataBases::loadDisciplines] End. " << disciplinesList.length();
     }
@@ -154,7 +154,7 @@ void DataBases::coinsideGroups()
             if (!ind)
             {
                 i.mGroupID = -1;
-                qDebug() << "[DataBases::coinsideGroups] Fix for " << i.getLogin();
+                qDebug() << "[DataBases::coinsideGroups] Fix for user " << i.getLogin();
             }
         }
     }
@@ -173,7 +173,7 @@ void DataBases::coinsideGroups()
                 }
             }
             if (ind) newGroups.append(j);
-            else qDebug() << "[DataBases::coinsideGroups] Fix for " << i.mName;
+            else qDebug() << "[DataBases::coinsideGroups] Fix for discipline " << i.mName;
         }
         i.mGroups = newGroups;
     }
@@ -219,7 +219,7 @@ void DataBases::overwriteUsers()
             {
                 outStream << i.mID << i.mGroupID << i.mSurname << i.mName
                           << i.mPatronymic << i.mGrant << i.mGrades.length();
-                for (auto &j : i.mGrades)
+                for (auto j : i.mGrades)
                 {
                     outStream << j;
                 }
@@ -231,20 +231,20 @@ void DataBases::overwriteUsers()
 
 void DataBases::overwriteDisciplines()
 {
-    qDebug() << "[DataBases::overwriteDisciplines]";
     QFile outFile("data/Disciplines.bin");
 
     if (outFile.open(QIODevice::WriteOnly))
     {
         QDataStream outStream(&outFile);
         outStream << nextDisciplineID;
-        qDebug() << "[DataBases::overwriteUsers] disciplinesList.length(): " << disciplinesList.length();
-        for (auto &i : disciplinesList)
+        qDebug() << "[DataBases::overwriteDisciplines] disciplinesList.length(): " << disciplinesList.length();
+        for (Discipline i : disciplinesList)
         {
             outStream << i.mName << i.mDisciplineID << i.mForm << i.mGroups.length();
-            for (auto &j : i.mGroups)
+            qDebug() << "[DataBases::overwriteDisciplines] write: " << i.mName << i.mDisciplineID << i.mForm << i.mGroups.length();
+            for (int j=0; j<i.mGroups.length(); j++)
             {
-                    outStream << j;
+                outStream << i.mGroups[j];
             }
         }
     }

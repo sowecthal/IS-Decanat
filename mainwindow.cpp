@@ -259,7 +259,6 @@ void MainWindow::addNoteThis()
             setData();
         }
     }
-
 }
 
 void MainWindow::removeNoteThis()
