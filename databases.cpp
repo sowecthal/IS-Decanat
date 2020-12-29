@@ -158,6 +158,25 @@ void DataBases::coinsideGroups()
             }
         }
     }
+    for (Discipline i : disciplinesList)
+    {
+        QList<int> newGroups;
+        for (int j : i.mGroups)
+        {
+            bool ind = false;
+            for (Group k : groupsList)
+            {
+                if(j == k.mGroupID)
+                {
+                    ind = true;
+                    break;
+                }
+            }
+            if (ind) newGroups.append(j);
+            else qDebug() << "[DataBases::coinsideGroups] Fix for " << i.mName;
+        }
+        i.mGroups = newGroups;
+    }
 }
 
 void DataBases::insertUser(QString iLogin, QString iPassword,  int iRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, int sGrant, QList<int> sGrades)

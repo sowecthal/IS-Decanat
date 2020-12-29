@@ -1,5 +1,6 @@
 #include "authwindow.h"
 #include "ui_authwindow.h"
+
 #include "databases.h"
 #include "dataclasses/user.h"
 #include "config.h"

@@ -31,7 +31,8 @@ private:
 
 private slots:
     void accept() Q_DECL_OVERRIDE;
-
+    void on_MyGroups_activated(const QModelIndex &index);
+    void on_OtherGroups_activated(const QModelIndex &index);
 };
 
 #endif // EDITDISCIPLINEDIALOG_H

@@ -5,7 +5,7 @@
 #include "dataclasses/user.h"
 #include "dataclasses/discipline.h"
 #include "dataclasses/group.h"
-
+#include <QStandardItemModel>
 
 namespace Ui {
 class EditGroupDialog;
@@ -20,8 +20,11 @@ public:
     ~EditGroupDialog();
 
 private:
+    void setData();
     Ui::EditGroupDialog *ui;
     Group& mGroup;
+    QStandardItemModel* sModel;
+    QStandardItemModel* dModel;
 
 public slots:
     void accept() Q_DECL_OVERRIDE;

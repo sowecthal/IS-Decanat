@@ -15,8 +15,8 @@
 #include <QMessageBox>
 
 MainWindow::MainWindow(DataBases &sDB, QWidget *parent)  : db(sDB),
-    QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     ui->toolBar->setMovable(false);
@@ -298,6 +298,7 @@ void MainWindow::removeNoteThis()
 
             db.disciplinesList.removeAt(idc[0].row());
             db.overwriteDisciplines();
+            db.reloadGroups();
             setData();
         }
     }

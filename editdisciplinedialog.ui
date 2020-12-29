@@ -173,4 +173,7 @@
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>move()</slot>
+ </slots>
 </ui>
