@@ -14,6 +14,7 @@ DataBases::DataBases()
     loadUsers();
     loadDisciplines();
     loadGroups();
+    coinsideGroups();
 }
 
 void DataBases::loadUsers()
@@ -44,16 +45,19 @@ void DataBases::loadUsers()
 
                 User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
                              tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
+                qDebug() << "[DataBases::loadUsers] Load student: " << tmpLogin << tmpPassword << tmpRole << tmpID << tmpGroupID <<
+                        tmpsSurname << tmpName << tmpPatronymic << tmpGrant;
                 usersList.push_back(newUser);
             }
             else
             {
                 User newUser(tmpLogin, tmpPassword, tmpRole);
+                qDebug() << "[DataBases::loadUsers] Load user: " << tmpLogin << tmpPassword << tmpRole;
                 usersList.push_back(newUser);
             }
         }
+        qDebug() << "[DataBases::loadUsers] End. " << usersList.length();
     }
-
     inFile.close();
 }
 
@@ -103,8 +107,8 @@ void DataBases::loadGroups()
             QList <User*> GroupsStudents;
             for (User &i : usersList)
             {
-                //Если найден пользователь, прикрепленный к группе - добавляем в список студентов
-                if (i.mGroupID == tmpGroupID)
+                //Если найден студент, прикрепленный к группе - добавляем в список студентов
+                if (i.getRole() == 0 && i.mGroupID == tmpGroupID)
                 {
                     GroupsStudents.append(&i);
                 }
@@ -118,7 +122,7 @@ void DataBases::loadGroups()
                     GroupsDisciplines.append(&i);
                 }
             }
-
+            qDebug() << "[DataBases::loadGroups] Load group: " << tmpGroupID << tmpNumber;
             Group newGroup(tmpGroupID, tmpNumber, GroupsStudents, GroupsDisciplines);
             groupsList.push_back(newGroup);
         }
@@ -130,6 +134,30 @@ void DataBases::reloadGroups()
 {
     groupsList.clear();
     loadGroups();
+}
+
+void DataBases::coinsideGroups()
+{
+    for (User i : usersList)
+    {
+        if (i.mGroupID != -1 && i.getRole() == 0)
+        {
+            bool ind = false;
+            for (Group j : groupsList)
+            {
+                if(i.mGroupID == j.mGroupID)
+                {
+                    ind = true;
+                     break;
+                }
+            }
+            if (!ind)
+            {
+                i.mGroupID = -1;
+                qDebug() << "[DataBases::coinsideGroups] Fix for " << i.getLogin();
+            }
+        }
+    }
 }
 
 void DataBases::insertUser(QString iLogin, QString iPassword,  int iRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, int sGrant, QList<int> sGrades)
@@ -212,7 +240,6 @@ void DataBases::overwriteGroups()
     {
         QDataStream outStream(&outFile);
         outStream << nextGroupID;
-
         for (auto &i : groupsList)
         {
             outStream << i.mGroupID << i.mNumber;
@@ -255,6 +282,16 @@ Group* DataBases::findGroup(int fID)
     for (Group &i : groupsList)
     {
         if (i.mGroupID == fID) return(&i);
+    }
+    Group* none = new Group(0, "", {}, {});
+    return(none);
+}
+
+Group* DataBases::findGroupName(QString fName)
+{
+    for (Group &i : groupsList)
+    {
+        if (i.mNumber == fName) return(&i);
     }
     Group* none = new Group(0, "", {}, {});
     return(none);

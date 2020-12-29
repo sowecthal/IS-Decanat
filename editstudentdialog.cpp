@@ -1,11 +1,13 @@
 #include "editstudentdialog.h"
+#include "databases.h"
 #include "ui_editstudentdialog.h"
 
 #include <QMessageBox>
 #include <QDebug>
 
-EditStudentDialog::EditStudentDialog(User &sStuden, QList<Group> sGroups, QWidget *parent) :
+EditStudentDialog::EditStudentDialog(User &sStuden, QList<Group> sGroups, DataBases &sDB, QWidget *parent) :
     mStudent(sStuden),
+    mDB(sDB),
     mGroups(sGroups),
     QDialog(parent),
     ui(new Ui::editStudentDialog)
@@ -45,22 +47,19 @@ void EditStudentDialog::accept()
     //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept
     if (ui->lineSurname->text().isEmpty()|| ui->lineName->text().isEmpty() || ui->lineNumber->text().isEmpty())
         QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
-    else if (mStudent.mSurname != ui->lineSurname->text() ||
-             mStudent.mName != ui->lineName->text() ||
-             mStudent.mPatronymic != ui->linePatronymic->text() ||
-             mStudent.mID != ui->lineNumber->text().toInt() ||
-             mStudent.mGrant != ui->grantComboBox->currentIndex() ||
-             mStudent.mGroupID != mGroups[ui->groupComboBox->currentIndex()].mGroupID)
+    else
     {
-        mStudent.mSurname = ui->lineSurname->text();
-        mStudent.mName = ui->lineName->text();
-        mStudent.mPatronymic = ui->linePatronymic->text();
-        mStudent.mID = ui->lineNumber->text().toInt();
-        mStudent.mGrant = ui->grantComboBox->currentIndex();
-        mStudent.mGroupID = mGroups[ui->groupComboBox->currentIndex()].mGroupID;
-
-        QDialog::accept();
+        bool ind = false;
+        if (mStudent.mSurname != ui->lineSurname->text()){ mStudent.mSurname = ui->lineSurname->text(); ind = true;}
+        if (mStudent.mName != ui->lineName->text()){ mStudent.mName = ui->lineName->text(); ind = true;}
+        if (mStudent.mPatronymic != ui->linePatronymic->text()){ mStudent.mPatronymic = ui->linePatronymic->text(); ind = true;}
+        if (mStudent.mID != ui->lineNumber->text().toInt()){ mStudent.mID = ui->lineNumber->text().toInt(); ind = true;}
+        if (mStudent.mGrant != ui->grantComboBox->currentIndex()){ mStudent.mGrant = ui->grantComboBox->currentIndex(); ind = true;}
+        if (ui->groupComboBox->currentIndex() != -1)
+            if (mStudent.mGroupID != mDB.findGroupName(ui->groupComboBox->currentText())->mGroupID){ mStudent.mGroupID = mDB.findGroupName(ui->groupComboBox->currentText())->mGroupID; ind = true;}
+        //Если были изменеия - завершаем с accept
+        if (ind) QDialog::accept();
+        QDialog::close();
     }
-    else QDialog::close();
 }
 

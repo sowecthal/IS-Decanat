@@ -167,15 +167,15 @@ void MainWindow::on_tableView_activated(const QModelIndex &index)
     {
         //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
         User* student = students[index.row()];
-        EditStudentDialog esd(*student, db.groupsList, this);
+        EditStudentDialog esd(*student, db.groupsList, db, this);
         esd.setWindowTitle("Редактирование студента");
 
         //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
         if (esd.exec() == QDialog::Accepted)
         {
             qDebug() << "[on_tableView_activated]" << student->mSurname << student->mID << student->mGrant;
-            db.overwriteUsers();
             db.reloadGroups();
+            db.overwriteUsers();
             setData();
         }
     }
@@ -224,6 +224,7 @@ void MainWindow::addNoteThis()
         {
             db.usersList.push_back(*user);
             db.overwriteUsers();
+            db.reloadGroups();
             setData();
         }
     }
@@ -245,7 +246,7 @@ void MainWindow::addNoteThis()
     }
     else if (ui->comboBox->currentText() == "Группы")
     {
-        Group* group = new Group(db.getNextDisciplineID(), "", {}, {});
+        Group* group = new Group(db.getNextGroupID(), "", {}, {});
         EditGroupDialog egd(*group, this);
         egd.setWindowTitle("Создание группы");
 
@@ -300,4 +301,17 @@ void MainWindow::removeNoteThis()
             setData();
         }
     }
+    else if (ui->comboBox->currentText() == "Группы")
+    {
+        QModelIndexList idc = ui->tableView->selectionModel()->selectedRows();
+        if (idc.length() == 0) QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
+        else if (QMessageBox::question(this, QString("Подтверждение удаления"),QString("Вы уверены, что хотите удалить заметку?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        {
+            db.groupsList.removeAt(idc[0].row());
+            db.overwriteGroups();
+            db.coinsideGroups();
+            setData();
+        }
+    }
+
 }

@@ -28,6 +28,9 @@ public:
     User* findStudent(int fID);
     Group* findGroup(int fID);
 
+    //! Поиск по имени
+    Group* findGroupName(QString fName);
+
     //! Перезапись файлов
     void overwriteUsers();
     void overwriteDisciplines();
@@ -43,6 +46,9 @@ public:
     //! Инкремент id
     void incrementNextDisciplineID();
     void incrementNextGroupID();
+
+    //! Сопоставление групп со студентами и дисциплинами
+    void coinsideGroups();
 
     //! Списки объектов
     QList<User> usersList;

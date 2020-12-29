@@ -10,6 +10,7 @@ EditGroupDialog::EditGroupDialog(Group &sGroup, QWidget *parent) :
 {
     ui->setupUi(this);
     ui->lineNumber->setText(mGroup.mNumber);
+    ui->labelID->setText("Внутренний номер группы: " + QString::number(mGroup.mGroupID));
 }
 
 EditGroupDialog::~EditGroupDialog()
