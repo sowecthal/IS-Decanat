@@ -58,13 +58,25 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineSurname"/>
+        <widget class="QLineEdit" name="lineSurname">
+         <property name="placeholderText">
+          <string>Фамилия</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineName"/>
+        <widget class="QLineEdit" name="lineName">
+         <property name="placeholderText">
+          <string>Имя</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="linePatronymic"/>
+        <widget class="QLineEdit" name="linePatronymic">
+         <property name="placeholderText">
+          <string>Отчество</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -78,7 +90,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="grantComboBox"/>
+        <widget class="QComboBox" name="groupComboBox"/>
        </item>
        <item>
         <widget class="QLabel" name="label_4">
@@ -88,7 +100,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_2">
+        <widget class="QComboBox" name="grantComboBox">
          <item>
           <property name="text">
            <string>Нет</string>
@@ -132,7 +144,20 @@
     </layout>
    </item>
    <item row="2" column="1">
-    <widget class="QTableView" name="tableView"/>
+    <widget class="QTableView" name="tableView">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+    </widget>
    </item>
   </layout>
  </widget>

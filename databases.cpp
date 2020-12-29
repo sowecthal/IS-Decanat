@@ -12,7 +12,8 @@
 DataBases::DataBases()
 {
     loadUsers();
-
+    loadDisciplines();
+    loadGroups();
 }
 
 void DataBases::loadUsers()
@@ -63,6 +64,7 @@ void DataBases::loadDisciplines()
     if (inFile.open(QIODevice::ReadOnly))
     {
         QDataStream inStream(&inFile);
+        inStream >> nextDisciplineID;
         while (!inStream.atEnd())
         {
             QString tmpName;
@@ -77,8 +79,9 @@ void DataBases::loadDisciplines()
             }
             Discipline newDiscipline(tmpName, tmpDisciplinesID, tmpForm, groups);
             disciplinesList.push_back(newDiscipline);
-
+            qDebug() << "[DataBases::loadDisciplines] Load discipline: " << tmpName << tmpDisciplinesID << tmpForm;
         }
+        qDebug() << "[DataBases::loadDisciplines] End. " << disciplinesList.length();
     }
 }
 
@@ -89,10 +92,12 @@ void DataBases::loadGroups()
     if (inFile.open(QIODevice::ReadOnly))
     {
         QDataStream inStream(&inFile);
+        inStream >> nextGroupID;
         while (!inStream.atEnd())
         {
             QString tmpNumber;
             int tmpGroupID;
+
             inStream >> tmpGroupID >> tmpNumber;
 
             QList <User*> GroupsStudents;
@@ -104,21 +109,27 @@ void DataBases::loadGroups()
                     GroupsStudents.append(&i);
                 }
             }
-
-            /*for (int i; i<tmpLen; i++)
+            QList <Discipline*> GroupsDisciplines;
+            for (Discipline &i : disciplinesList)
             {
-                inStream >> tmpDisc;
-                inStream >> tmpGrade;
-                tmpGrades.push_back(tmpDisc);
-                tmpGrades.push_back(tmpGrade);
+                //Если найдена дискиплина с прекрепленной группой - добавляем в список
+                if (i.mGroups.contains(tmpGroupID))
+                {
+                    GroupsDisciplines.append(&i);
+                }
             }
 
-            User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
-                tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
-            usersList.push_back(newUser);*/
+            Group newGroup(tmpGroupID, tmpNumber, GroupsStudents, GroupsDisciplines);
+            groupsList.push_back(newGroup);
         }
     }
     inFile.close();
+}
+
+void DataBases::reloadGroups()
+{
+    groupsList.clear();
+    loadGroups();
 }
 
 void DataBases::insertUser(QString iLogin, QString iPassword,  int iRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, int sGrant, QList<int> sGrades)
@@ -171,6 +182,45 @@ void DataBases::overwriteUsers()
     outFile.close();
 }
 
+void DataBases::overwriteDisciplines()
+{
+    qDebug() << "[DataBases::overwriteDisciplines]";
+    QFile outFile("data/Disciplines.bin");
+
+    if (outFile.open(QIODevice::WriteOnly))
+    {
+        QDataStream outStream(&outFile);
+        outStream << nextDisciplineID;
+        qDebug() << "[DataBases::overwriteUsers] disciplinesList.length(): " << disciplinesList.length();
+        for (auto &i : disciplinesList)
+        {
+            outStream << i.mName << i.mDisciplineID << i.mForm << i.mGroups.length();
+            for (auto &j : i.mGroups)
+            {
+                    outStream << j;
+            }
+        }
+    }
+    outFile.close();
+}
+
+void DataBases::overwriteGroups()
+{
+    QFile outFile("data/Groups.bin");
+
+    if (outFile.open(QIODevice::WriteOnly))
+    {
+        QDataStream outStream(&outFile);
+        outStream << nextGroupID;
+
+        for (auto &i : groupsList)
+        {
+            outStream << i.mGroupID << i.mNumber;
+        }
+    }
+    outFile.close();
+}
+
 int DataBases::findAuthUser(QString fLogin, QString fPassword)
 {
     for (int i=0; i<usersList.length();i++)
@@ -198,4 +248,34 @@ User* DataBases::findStudent(int fID)
     {
         if (i.mID == fID) return(&i);
     }
+}
+
+Group* DataBases::findGroup(int fID)
+{
+    for (Group &i : groupsList)
+    {
+        if (i.mGroupID == fID) return(&i);
+    }
+    Group* none = new Group(0, "", {}, {});
+    return(none);
+}
+
+int DataBases::getNextDisciplineID()
+{
+    return(nextDisciplineID + 1);
+}
+
+int DataBases::getNextGroupID()
+{
+    return(nextDisciplineID + 1);
+}
+
+void DataBases::incrementNextDisciplineID()
+{
+    nextDisciplineID++;
+}
+
+void DataBases::incrementNextGroupID()
+{
+    nextDisciplineID++;
 }

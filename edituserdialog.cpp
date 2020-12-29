@@ -4,15 +4,14 @@
 #include <QDebug>
 #include <QMessageBox>
 
-EditUserDialog::EditUserDialog(User &sUser, QWidget *parent) : mUser(sUser),
+EditUserDialog::EditUserDialog(User &sUser, QWidget *parent) :
+    mUser(sUser),
     QDialog(parent),
     ui(new Ui::EditUserDialog)
 {
     ui->setupUi(this);
     ui->lineLogin->setMaxLength(30);
     ui->linePassword->setMaxLength(30);
-    ui->lineLogin->setPlaceholderText("Имя пользователя");
-    ui->linePassword->setPlaceholderText("Пароль");
     ui->linePassword->setText(mUser.getPassword());
     ui->lineLogin->setText(mUser.getLogin());
     if (mUser.getRole() == 0) ui->radioStudent->setChecked(true);

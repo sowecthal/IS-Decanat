@@ -64,10 +64,18 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLineEdit" name="lineLogin"/>
+       <widget class="QLineEdit" name="lineLogin">
+        <property name="placeholderText">
+         <string>Имя пользователя</string>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="linePassword"/>
+       <widget class="QLineEdit" name="linePassword">
+        <property name="placeholderText">
+         <string>Пароль</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

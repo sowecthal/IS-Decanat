@@ -20,9 +20,6 @@
       <item>
        <widget class="QComboBox" name="comboBox"/>
       </item>
-      <item>
-       <widget class="QLineEdit" name="lineFind"/>
-      </item>
      </layout>
     </item>
     <item row="1" column="0">
@@ -166,22 +163,6 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lineFind</sender>
-   <signal>returnPressed()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>lineFindReturn()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>462</x>
-     <y>48</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>

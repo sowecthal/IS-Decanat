@@ -4,6 +4,7 @@
 #include "edituserdialog.h"
 #include "editstudentdialog.h"
 #include "editdisciplinedialog.h"
+#include "editgroupdialog.h"
 
 #include "dataclasses/user.h"
 #include "dataclasses/discipline.h"
@@ -20,7 +21,6 @@ MainWindow::MainWindow(DataBases &sDB, QWidget *parent)  : db(sDB),
     ui->setupUi(this);
     ui->toolBar->setMovable(false);
     ui->toolBar->orientationChanged(Qt::Vertical);
-    ui->lineFind->setPlaceholderText("Поиск по таблице");
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
 
 }
@@ -78,7 +78,7 @@ void MainWindow::setData()
         for(int i = 0; i < db.groupsList.length() ; i++)
         {
             model->setItem(i,0,new QStandardItem(QString(db.groupsList[i].mNumber)));
-            model->setItem(i,1,new QStandardItem(QString(db.groupsList[i].mStudents.length())));
+            model->setItem(i,1,new QStandardItem(QString::number(db.groupsList[i].mStudents.length())));
         }
         ui->tableView->setModel(model);
     }
@@ -102,7 +102,7 @@ void MainWindow::setData()
             model->setItem(i,0,new QStandardItem(QString(students[i]->mSurname)));
             model->setItem(i,1,new QStandardItem(QString(students[i]->mName)));
             model->setItem(i,2,new QStandardItem(QString(students[i]->mPatronymic)));
-            model->setItem(i,3,new QStandardItem(QString::number(students[i]->mGroupID)));
+            model->setItem(i,3,new QStandardItem(db.findGroup(students[i]->mGroupID)->mNumber));
             model->setItem(i,4,new QStandardItem(QString::number(students[i]->mID)));
         }
         ui->tableView->setModel(model);
@@ -113,10 +113,10 @@ void MainWindow::setData()
         model->setHorizontalHeaderItem(0, new QStandardItem(QString("Наименование")));
         model->setHorizontalHeaderItem(1, new QStandardItem(QString("Форма контроля")));
 
-        for(int i = 0; i < db.groupsList.length() ; i++)
+        for(int i = 0; i < db.disciplinesList.length() ; i++)
         {
             model->setItem(i,0,new QStandardItem(QString(db.disciplinesList[i].mName)));
-            model->setItem(i,1,new QStandardItem(QString::number(db.disciplinesList[i].mForm)));
+            model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[db.disciplinesList[i].mForm]));
         }
         ui->tableView->setModel(model);
     }
@@ -143,8 +143,6 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
     {
         ui->addNoteThis->setDisabled(false);
         ui->removeNoteThis->setDisabled(false);
-        ui->addNoteThis->setCheckable(true);
-        ui->removeNoteThis->setCheckable(true);
     }
     setData();
 }
@@ -164,25 +162,52 @@ void MainWindow::on_tableView_activated(const QModelIndex &index)
             db.overwriteUsers();
             setData();
         }
-        qDebug() << "[MainWindow::on_tableView_activated]";
     }
     else if (ui->comboBox->currentText() == "Студенты")
     {
         //Создаем указатель на соответствующего пользователя - передаем в конструктор окна EditUserDialog
         User* student = students[index.row()];
-        qDebug() << student->mSurname << student->mName << student->mPatronymic << student->mID;
-        EditStudentDialog esd(*student, this);
+        EditStudentDialog esd(*student, db.groupsList, this);
         esd.setWindowTitle("Редактирование студента");
 
         //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
         if (esd.exec() == QDialog::Accepted)
         {
-            qDebug() << "[MainWindow::on_tableView_activated] if ui->comboBox->currentText() == Студенты";
-            qDebug() << student->mSurname << student->mName << student->mPatronymic << student->mID;
+            qDebug() << "[on_tableView_activated]" << student->mSurname << student->mID << student->mGrant;
             db.overwriteUsers();
+            db.reloadGroups();
+            setData();
+        }
+    }
+    else if (ui->comboBox->currentText() == "Дисциплины")
+    {
+        //Создаем указатель на соответствующую дисциплину - передаем в конструктор окна EditUserDialog
+
+        Discipline* discipline = &db.disciplinesList[index.row()];
+        EditDisciplineDialog edd(*discipline, db.groupsList, this);
+        edd.setWindowTitle("Редактирование дисциплины");
+
+        //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных
+        if (edd.exec() == QDialog::Accepted)
+        {
+            db.overwriteDisciplines();
+            db.reloadGroups();
             setData();
         }
         qDebug() << "[MainWindow::on_tableView_activated]";
+    }
+    else if (ui->comboBox->currentText() == "Группы")
+    {
+        Group* group = &db.groupsList[index.row()];
+        EditGroupDialog egd(*group, this);
+        egd.setWindowTitle("Редактирование группы");
+
+        //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных
+        if (egd.exec() == QDialog::Accepted)
+        {
+            db.overwriteGroups();
+            setData();
+        }
     }
 }
 
@@ -204,19 +229,36 @@ void MainWindow::addNoteThis()
     }
     else if (ui->comboBox->currentText() == "Дисциплины")
     {
-        Discipline* discipline = new Discipline("", 0, 0, {});
-        EditDisciplineDialog edd(*discipline, this);
+        Discipline* discipline = new Discipline("", db.getNextDisciplineID(), 0, {});
+        EditDisciplineDialog edd(*discipline, db.groupsList, this);
         edd.setWindowTitle("Создание дисциплины");
 
         //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
         if (edd.exec() == QDialog::Accepted)
         {
             db.disciplinesList.push_back(*discipline);
-            db.overwriteUsers();
+            db.incrementNextDisciplineID();
+            db.overwriteDisciplines();
+            db.reloadGroups();
             setData();
         }
     }
-    qDebug() << "[MainWindow::on_tableView_activated]";
+    else if (ui->comboBox->currentText() == "Группы")
+    {
+        Group* group = new Group(db.getNextDisciplineID(), "", {}, {});
+        EditGroupDialog egd(*group, this);
+        egd.setWindowTitle("Создание группы");
+
+        //Если диалог закрыт с accept(были внесены изменения) - перезаписываем базу данных пользователей, обновляем модель таблицы
+        if (egd.exec() == QDialog::Accepted)
+        {
+            db.groupsList.push_back(*group);
+            db.incrementNextDisciplineID();
+            db.overwriteGroups();
+            setData();
+        }
+    }
+
 }
 
 void MainWindow::removeNoteThis()
@@ -224,12 +266,38 @@ void MainWindow::removeNoteThis()
     if (ui->comboBox->currentText() == "Пользователи")
     {
         QModelIndexList idc = ui->tableView->selectionModel()->selectedRows();
-        //User dUser = db.usersList.value(idc[0].row());
         if (idc.length() == 0) QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
         else if (QMessageBox::question(this, QString("Подтверждение удаления"),QString("Вы уверены, что хотите удалить заметку?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        {
             db.usersList.removeAt(idc[0].row());
-        db.overwriteUsers();
-        setData();
+            db.overwriteUsers();
+            setData();
+        }
+    }
+    else if (ui->comboBox->currentText() == "Дисциплины")
+    {
+        QModelIndexList idc = ui->tableView->selectionModel()->selectedRows();
+        if (idc.length() == 0) QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
+        else if (QMessageBox::question(this, QString("Подтверждение удаления"),QString("Вы уверены, что хотите удалить заметку?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        {
+            //Из записей пользователей удалим записи об этой дисциплине
+            for (User& i : db.usersList)
+            {
+                for (int j; j<i.mGrades.length(); j++)
+                {
+                    if (i.mGrades[j] == db.disciplinesList[idc[0].row()].mDisciplineID && j%2 == 0)
+                    {
+                        i.mGrades.removeAt(j);
+                        i.mGrades.removeAt(j+1);
+                        db.overwriteUsers();
+                        break;
+                    }
+                }
+            }
 
+            db.disciplinesList.removeAt(idc[0].row());
+            db.overwriteDisciplines();
+            setData();
+        }
     }
 }

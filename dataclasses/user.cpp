@@ -46,7 +46,7 @@ void User::editUser(QString eLogin, QString ePassword, int eRole)
     {
         // Для удобства распознавания студентов, при изменении роли на "студент", логин помещается в строку с фамилией.
         mSurname = eLogin;
-        mID = -1;
+        mID = 0;
         mGroupID = -1;
         mName = "";
         mPatronymic = "";

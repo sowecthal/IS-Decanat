@@ -4,7 +4,9 @@
 #include <QMessageBox>
 #include <QDebug>
 
-EditStudentDialog::EditStudentDialog(User &sStuden, QWidget *parent) : mStudent(sStuden),
+EditStudentDialog::EditStudentDialog(User &sStuden, QList<Group> sGroups, QWidget *parent) :
+    mStudent(sStuden),
+    mGroups(sGroups),
     QDialog(parent),
     ui(new Ui::editStudentDialog)
 {
@@ -22,19 +24,15 @@ EditStudentDialog::EditStudentDialog(User &sStuden, QWidget *parent) : mStudent(
     ui->lineNumber->setValidator(validator);
     ui->labelLogin->setText(mStudent.getLogin());
 
-    switch (mStudent.mGrant)
+    int index = 0;
+    for (Group i : mGroups)
     {
-        case 0:
-            ui->grantComboBox->setCurrentIndex(0);
-            break;
-        case 1:
-            ui->grantComboBox->setCurrentIndex(1);
-            break;
-        case 2:
-            ui->grantComboBox->setCurrentIndex(2);
-            break;
+        GroupsNumbers.append(i.mNumber);
+        ui->groupComboBox->addItem(i.mNumber);
+        if (i.mGroupID == mStudent.mGroupID) ui->groupComboBox->setCurrentText(i.mNumber);
     }
 
+    ui->grantComboBox->setCurrentIndex(mStudent.mGrant);
 }
 
 EditStudentDialog::~EditStudentDialog()
@@ -50,12 +48,17 @@ void EditStudentDialog::accept()
     else if (mStudent.mSurname != ui->lineSurname->text() ||
              mStudent.mName != ui->lineName->text() ||
              mStudent.mPatronymic != ui->linePatronymic->text() ||
-             mStudent.mID != ui->lineNumber->text().toInt())
+             mStudent.mID != ui->lineNumber->text().toInt() ||
+             mStudent.mGrant != ui->grantComboBox->currentIndex() ||
+             mStudent.mGroupID != mGroups[ui->groupComboBox->currentIndex()].mGroupID)
     {
         mStudent.mSurname = ui->lineSurname->text();
         mStudent.mName = ui->lineName->text();
         mStudent.mPatronymic = ui->linePatronymic->text();
         mStudent.mID = ui->lineNumber->text().toInt();
+        mStudent.mGrant = ui->grantComboBox->currentIndex();
+        mStudent.mGroupID = mGroups[ui->groupComboBox->currentIndex()].mGroupID;
+
         QDialog::accept();
     }
     else QDialog::close();
