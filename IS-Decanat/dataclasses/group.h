@@ -1,8 +1,8 @@
 #ifndef GROUP_H
 #define GROUP_H
 
-#include "dataclasses/user.h"
-#include "dataclasses/discipline.h"
+#include "user.h"
+#include "discipline.h"
 
 #include <QString>
 #include <QList>

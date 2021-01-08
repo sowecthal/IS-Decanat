@@ -6,8 +6,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QDataStream>
-#include <QTableView>
-#include <QStandardItemModel>
 
 DataBases::DataBases()
 {
