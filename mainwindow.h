@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(DataBases &sDB, QWidget *parent = nullptr);
     ~MainWindow();
-    void setMode(int sMode);
+    void setUser(User* sUser);
 
 private slots:
 
@@ -32,14 +32,17 @@ private slots:
 
     void removeNoteThis();
 
-    void lineFindReturn();
 
 private:
     DataBases& db;
     QList <User*> students;
     int mMode;
+    User* mUser;
     QStandardItemModel* model;
     Ui::MainWindow *ui;
+
     void setData();
+
+    int findGrade(int fDisciplinesID);
 };
 #endif // MAINWINDOW_H

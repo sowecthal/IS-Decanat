@@ -17,14 +17,14 @@ public:
     explicit AuthWindow(DataBases &sDB, QWidget *parent = nullptr);
     ~AuthWindow();
 
-    int mode;
+    User* authUser;
 
 public slots:
     //! Обрабатывает подтверждение диалога.
     void accept() Q_DECL_OVERRIDE;
 
 private:
-    DataBases& db;
+    DataBases &db;
     Ui::AuthWindow *ui;
 };
 

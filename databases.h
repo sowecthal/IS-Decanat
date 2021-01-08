@@ -14,29 +14,26 @@ class DataBases
 
 public:
     DataBases();
-    //! Метод добавления пользователя
-    void insertUser(QString iLogin, QString iPassword, int iRole, int sID = -1, int sGroupID = -1, QString sSurname = " ",
-                    QString sName = " ", QString sPatronymic = " ", int sGrant = -1, QList<int> sGrades = {});
 
     //! Поиск пользователя для авторизации
-    int findAuthUser(QString fLogin, QString fPassword);
+    User* findAuthUser(QString fLogin, QString fPassword);
     /* Возвращает значение поля mRole, найденного пользователя;
      * В противном случае, возвращает -1
      */
 
     //! Поиск по id
-    User* findStudent(int fID);
-    Group* findGroup(int fID);
+    User *findStudent(int fID);
+    Group *findGroup(int fID);
 
     //! Поиск по имени
-    Group* findGroupName(QString fName);
+    Group *findGroupName(QString fName);
 
     //! Перезапись файлов
     void overwriteUsers();
     void overwriteDisciplines();
     void overwriteGroups();
 
-    //! Перезагрузка
+    //! Перезагрузка групп
     void reloadGroups();
 
     //! Получение доступного id

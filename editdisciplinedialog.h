@@ -5,6 +5,7 @@
 #include "dataclasses/group.h"
 #include <QDialog>
 #include <QStandardItemModel>
+#include "databases.h"
 
 namespace Ui {
 class EditDisciplineDialog;
@@ -15,7 +16,7 @@ class EditDisciplineDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditDisciplineDialog(Discipline &sDiscipline, QList<Group> allGroups, QWidget *parent = nullptr);
+    explicit EditDisciplineDialog(Discipline &sDiscipline, DataBases &sDB, QWidget *parent = nullptr);
     ~EditDisciplineDialog();
 
 private:
@@ -23,16 +24,16 @@ private:
     //! Создает и устанавливает модели
     void setData();
 
-    Discipline& mDiscipline;
-    QList<Group> oGroups;
+    Discipline &mDiscipline;
     QList<int> mGroups;
-    QStandardItemModel* mModel;
-    QStandardItemModel* oModel;
+    QList<Group> oGroups;
+    DataBases &mDB;
+    QStandardItemModel *model;
 
 private slots:
     void accept() Q_DECL_OVERRIDE;
     void on_MyGroups_activated(const QModelIndex &index);
-    void on_OtherGroups_activated(const QModelIndex &index);
+    void find();
 };
 
 #endif // EDITDISCIPLINEDIALOG_H

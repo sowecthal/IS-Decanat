@@ -5,13 +5,15 @@
 #include <QMessageBox>
 
 EditUserDialog::EditUserDialog(User &sUser, QWidget *parent) :
-    mUser(sUser),
     QDialog(parent),
-    ui(new Ui::EditUserDialog)
+    ui(new Ui::EditUserDialog),
+    mUser(sUser)
 {
     ui->setupUi(this);
+    //Ограничение длины логина и пароля
     ui->lineLogin->setMaxLength(30);
     ui->linePassword->setMaxLength(30);
+    //Установка текущих значений.
     ui->linePassword->setText(mUser.getPassword());
     ui->lineLogin->setText(mUser.getLogin());
     if (mUser.getRole() == 0) ui->radioStudent->setChecked(true);
@@ -26,22 +28,29 @@ EditUserDialog::~EditUserDialog()
 
 int EditUserDialog::getSelectedRole()
 {
-    //Если выбранна радио-кнопка - вернуть соответствующую ей роль
-    if (ui->radioStudent->isChecked()) return(0);
-    if (ui->radioSupervisor->isChecked()) return(1);
-    if (ui->radioAdmin->isChecked()) return(2);
+    //Если выбранна радио-кнопка - вернуть соответствующую ей роль.
+    if (ui->radioStudent->isChecked()) {
+        return(0);
+    }
+    if (ui->radioSupervisor->isChecked()) {
+        return(1);
+    }
+    if (ui->radioAdmin->isChecked()) {
+        return(2);
+    }
     return(-1);
 }
 
 void EditUserDialog::accept()
 {
-    //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept
-    if (getSelectedRole() == -1 || ui->lineLogin->text().isEmpty() || ui->linePassword->text().isEmpty())
+    //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept.
+    if ((getSelectedRole() == -1 || ui->lineLogin->text().isEmpty()) || ui->linePassword->text().isEmpty()) {
         QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
-    else if (mUser.getLogin() != ui->lineLogin->text() || mUser.getPassword() != ui->linePassword->text() ||  mUser.getRole() != getSelectedRole())
-    {
-        mUser.editUser(ui->lineLogin->text(), ui->linePassword->text(), getSelectedRole());
-        QDialog::accept();
+    } else {
+        if (((mUser.getLogin() != ui->lineLogin->text()) || mUser.getPassword() != ui->linePassword->text()) ||  mUser.getRole() != getSelectedRole()) {
+            mUser.editUser(ui->lineLogin->text(), ui->linePassword->text(), getSelectedRole());
+            QDialog::accept();
+        }
+        QDialog::close();
     }
-    else QDialog::close();
 }

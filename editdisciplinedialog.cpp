@@ -6,16 +6,24 @@
 #include <QString>
 #include <QDebug>
 
-EditDisciplineDialog::EditDisciplineDialog(Discipline &sDiscipline, QList<Group> allGroups, QWidget *parent) : mDiscipline(sDiscipline),
-    oGroups(allGroups),
+EditDisciplineDialog::EditDisciplineDialog(Discipline &sDiscipline, DataBases &sDB, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::EditDisciplineDialog)
+    ui(new Ui::EditDisciplineDialog),
+    mDiscipline(sDiscipline),
+    mDB(sDB)
 {
-    mGroups = mDiscipline.mGroups;
     ui->setupUi(this);
+    //Заполнение списка групп.
+    for (int i : mDiscipline.mGroups) {
+        mGroups.append(i);
+    }
+    //Ограничение длины имени.
     ui->lineName->setMaxLength(150);
+    //Установка текущей наименования дисциплины.
     ui->lineName->setText(mDiscipline.mName);
+    //Устновка текущей формы контроля.
     ui->Form->setCurrentIndex(mDiscipline.mForm);
+    //Редактирование QLabel в соответствии с полученным номером дисциплины.
     ui->labelID->setText("Внутренний номер дисциплины: " + QString::number(mDiscipline.mDisciplineID));
 
     setData();
@@ -23,29 +31,14 @@ EditDisciplineDialog::EditDisciplineDialog(Discipline &sDiscipline, QList<Group>
 
 void EditDisciplineDialog::setData()
 {
-    mModel = new QStandardItemModel(mGroups.length(), 1, this);
-    oModel = new QStandardItemModel(oGroups.length() - mGroups.length(), 1, this);
-    mModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Номер группы")));
-    oModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Номер группы")));
+    model = new QStandardItemModel(mGroups.length(), 1, this);
+    model->setHorizontalHeaderItem(0, new QStandardItem(QString("Номер группы")));
 
-    int myIndex = 0, otherIndex = 0;
-    for(int i = 0; i<oGroups.length(); i++)
-    {
-        if (mGroups.contains(oGroups[i].mGroupID))
-        {
-            mModel->setItem(myIndex,0,new QStandardItem(QString(oGroups[i].mNumber)));
-            myIndex++;
-        }
-        else
-        {
-            oModel->setItem(otherIndex,0,new QStandardItem(QString(oGroups[i].mNumber)));
-            otherIndex++;
-        }
+    for (int i = 0; i < mGroups.length(); i++) {
+        model->setItem(i,0,new QStandardItem(QString(mDB.findGroup(mGroups[i])->mNumber)));
     }
-    ui->MyGroups->setModel(mModel);
-    ui->OtherGroups->setModel(oModel);
+    ui->MyGroups->setModel(model);
 }
-
 
 EditDisciplineDialog::~EditDisciplineDialog()
 {
@@ -54,55 +47,30 @@ EditDisciplineDialog::~EditDisciplineDialog()
 
 void EditDisciplineDialog::accept()
 {
-    //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept
-    if (ui->lineName->text().isEmpty())
+    //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept.
+    if (ui->lineName->text().isEmpty()) {
         QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
-    else if (mDiscipline.mName != ui->lineName->text() ||
-             mDiscipline.mForm !=  ui->Form->currentIndex() ||
-             mDiscipline.mGroups != mGroups)
-    {
+    } else {
         mDiscipline.mName = ui->lineName->text();
         mDiscipline.mForm = ui->Form->currentIndex();
         mDiscipline.mGroups = mGroups;
         QDialog::accept();
     }
-    else QDialog::close();
-}
 
+    QDialog::close();
+}
 
 void EditDisciplineDialog::on_MyGroups_activated(const QModelIndex &index)
 {
-   int myIndex = 0;
-   for(int i = 0; i<oGroups.length(); i++)
-   {
-       if (mGroups.contains(oGroups[i].mGroupID))
-       {
-           if(myIndex == index.row())
-           {
-               mGroups.removeAt(myIndex);
-               break;
-           }
-           myIndex++;
-       }
-   }
-   setData();
-
+    mGroups.removeAt(index.row());
+    setData();
 }
 
-void EditDisciplineDialog::on_OtherGroups_activated(const QModelIndex &index)
+void EditDisciplineDialog::find()
 {
-    int otherIndex = 0;
-    for(int i = 0; i<oGroups.length(); i++)
-    {
-        if (!mGroups.contains(oGroups[i].mGroupID))
-        {
-            if(otherIndex == index.row())
-            {
-                mGroups.append(oGroups[i].mGroupID);
-                break;
-            }
-            otherIndex++;
-        }
+    Group* foundGroup = mDB.findGroupName(ui->lineFind->text());
+    if (foundGroup->mGroupID != 0 && !mGroups.contains(foundGroup->mGroupID)) {
+        mGroups.append(foundGroup->mGroupID);
     }
     setData();
 }

@@ -13,13 +13,13 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     DataBases* db = new DataBases;
-    MainWindow w(*db);
+    MainWindow mw(*db);
     AuthWindow aw(*db);
 
     if (aw.exec() == QDialog::Accepted)
     {
-        w.show();
-        w.setMode(aw.mode);
+        mw.show();
+        mw.setUser(aw.authUser);
     }
     return a.exec();
 }

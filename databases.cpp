@@ -11,9 +11,11 @@
 
 DataBases::DataBases()
 {
+    //Загрузка из двоичных файлов.
     loadUsers();
     loadDisciplines();
     loadGroups();
+    //Устранение несоответсвий в группах.
     coinsideGroups();
 }
 
@@ -21,42 +23,48 @@ void DataBases::loadUsers()
 {
     QFile inFile("data/Users.bin");
 
-    if (inFile.open(QIODevice::ReadOnly))
-    {
+    if (inFile.open(QIODevice::ReadOnly)) {
         QDataStream inStream(&inFile);
-        while (!inStream.atEnd())
-        {
-            QString tmpPassword, tmpLogin;
+
+        //Пока в потоке есть данные:
+        while (!inStream.atEnd()) {
+            QString tmpPassword;
+            QString tmpLogin;
             int tmpRole;
+
             inStream >> tmpLogin >> tmpPassword >> tmpRole;
-            if (tmpRole == 0)
-            {
-                QString tmpsSurname, tmpName, tmpPatronymic;
-                int tmpID, tmpGroupID, tmpLen, tmpGrade, tmpGrant, tmpDisc;
+
+            //Если роль == 0(соответствует студенту) - читаем дальше в поля студента, используем перегруженный конструктор.
+            if (tmpRole == 0) {
+                //Временные переменные студента.
+                QString tmpsSurname;
+                QString tmpName;
+                QString tmpPatronymic;
+                int tmpID;
+                int tmpGroupID;
+                int tmpLen;
+                int tmpGrade;
+                int tmpGrant;
+                int tmpDisc;
                 QList<int> tmpGrades;
+
                 inStream >> tmpID >> tmpGroupID >> tmpsSurname >> tmpName >> tmpPatronymic >> tmpGrant >> tmpLen;
-                for (int i; i<tmpLen; i++)
-                {
-                    inStream >> tmpDisc;
-                    inStream >> tmpGrade;
+
+                //Чтение всех оценок.
+                for (int i = 0; i < tmpLen; i++) {
+                    inStream >> tmpDisc >> tmpGrade;
                     tmpGrades.push_back(tmpDisc);
                     tmpGrades.push_back(tmpGrade);
                 }
 
                 User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
                              tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
-                qDebug() << "[DataBases::loadUsers] Load student: " << tmpLogin << tmpPassword << tmpRole << tmpID << tmpGroupID <<
-                        tmpsSurname << tmpName << tmpPatronymic << tmpGrant;
                 usersList.push_back(newUser);
-            }
-            else
-            {
+            } else {
                 User newUser(tmpLogin, tmpPassword, tmpRole);
-                qDebug() << "[DataBases::loadUsers] Load user: " << tmpLogin << tmpPassword << tmpRole;
                 usersList.push_back(newUser);
             }
         }
-        qDebug() << "[DataBases::loadUsers] End. " << usersList.length();
     }
     inFile.close();
 }
@@ -65,27 +73,32 @@ void DataBases::loadDisciplines()
 {
     QFile inFile("data/Disciplines.bin");
 
-    if (inFile.open(QIODevice::ReadOnly))
-    {
+    if (inFile.open(QIODevice::ReadOnly)) {
         QDataStream inStream(&inFile);
+
+        //Первым читается следующий ID.
         inStream >> nextDisciplineID;
-        while (!inStream.atEnd())
-        {
+
+        //Пока в потоке есть данные:
+        while (!inStream.atEnd()) {
             QString tmpName;
-            int tmpDisciplinesID, tmpForm, tmpLength, tmpGroupID;
+            int tmpDisciplinesID;
+            int tmpForm;
+            int tmpLength;
+            int tmpGroupID;
+            QList <int> tmpGroups;
+
             inStream >> tmpName >> tmpDisciplinesID >> tmpForm >> tmpLength;
 
-            QList <int> groups;
-            for (int i; i<tmpLength; i++)
-            {
-               inStream >> tmpGroupID;
-               groups.append(tmpGroupID);
+            //Чтение ID групп.
+            for (int i = 0; i < tmpLength; i++) {
+                inStream >> tmpGroupID;
+                tmpGroups.append(tmpGroupID);
             }
-            Discipline newDiscipline(tmpName, tmpDisciplinesID, tmpForm, groups);
-            if (newDiscipline.mName!="") disciplinesList.push_back(newDiscipline);
-            qDebug() << "[DataBases::loadDisciplines]" << tmpName << tmpDisciplinesID << tmpForm << groups;
+
+            Discipline newDiscipline(tmpName, tmpDisciplinesID, tmpForm, tmpGroups);
+            disciplinesList.push_back(newDiscipline); 
         }
-        qDebug() << "[DataBases::loadDisciplines] End. " << disciplinesList.length();
     }
 }
 
@@ -93,37 +106,35 @@ void DataBases::loadGroups()
 {
     QFile inFile("data/Groups.bin");
 
-    if (inFile.open(QIODevice::ReadOnly))
-    {
+    if (inFile.open(QIODevice::ReadOnly)) {
         QDataStream inStream(&inFile);
+
+        //Первым читается следующий ID.
         inStream >> nextGroupID;
-        while (!inStream.atEnd())
-        {
+
+        //Пока в потоке есть данные:
+        while (!inStream.atEnd()) {
             QString tmpNumber;
             int tmpGroupID;
+            QList <User*> tmpStudents;
+            QList <Discipline*> tmpDisciplines;
 
             inStream >> tmpGroupID >> tmpNumber;
 
-            QList <User*> GroupsStudents;
-            for (User &i : usersList)
-            {
-                //Если найден студент, прикрепленный к группе - добавляем в список студентов
-                if (i.getRole() == 0 && i.mGroupID == tmpGroupID)
-                {
-                    GroupsStudents.append(&i);
+            for (User &i : usersList) {
+                //Если найден студент, прикрепленный к группе - добавляем в список tmpStudents.
+                if ((i.getRole() == 0) && (i.mGroupID == tmpGroupID)) {
+                    tmpStudents.append(&i);
                 }
             }
-            QList <Discipline*> GroupsDisciplines;
-            for (Discipline &i : disciplinesList)
-            {
-                //Если найдена дискиплина с прекрепленной группой - добавляем в список
-                if (i.mGroups.contains(tmpGroupID))
-                {
-                    GroupsDisciplines.append(&i);
+
+            for (Discipline &i : disciplinesList) {
+                //Если найдена дисциплина с прекрепленной группой - добавляем в список tmpDisciplines.
+                if (i.mGroups.contains(tmpGroupID)) {
+                    tmpDisciplines.append(&i);
                 }
             }
-            qDebug() << "[DataBases::loadGroups] Load group: " << tmpGroupID << tmpNumber;
-            Group newGroup(tmpGroupID, tmpNumber, GroupsStudents, GroupsDisciplines);
+            Group newGroup(tmpGroupID, tmpNumber, tmpStudents, tmpDisciplines);
             groupsList.push_back(newGroup);
         }
     }
@@ -138,89 +149,53 @@ void DataBases::reloadGroups()
 
 void DataBases::coinsideGroups()
 {
-    for (User i : usersList)
-    {
-        if (i.mGroupID != -1 && i.getRole() == 0)
-        {
+    for (User i : usersList) {
+        if ((i.mGroupID != -1) && (i.getRole() == 0)) {
             bool ind = false;
-            for (Group j : groupsList)
-            {
-                if(i.mGroupID == j.mGroupID)
-                {
-                    ind = true;
-                     break;
-                }
-            }
-            if (!ind)
-            {
-                i.mGroupID = -1;
-                qDebug() << "[DataBases::coinsideGroups] Fix for user " << i.getLogin();
-            }
-        }
-    }
-    for (Discipline i : disciplinesList)
-    {
-        QList<int> newGroups;
-        for (int j : i.mGroups)
-        {
-            bool ind = false;
-            for (Group k : groupsList)
-            {
-                if(j == k.mGroupID)
-                {
+            for (Group j : groupsList) {
+                if(i.mGroupID == j.mGroupID) {
                     ind = true;
                     break;
                 }
             }
-            if (ind) newGroups.append(j);
-            else qDebug() << "[DataBases::coinsideGroups] Fix for discipline " << i.mName;
+            if (!ind) {
+                i.mGroupID = -1;
+            }
+        }
+    }
+    for (Discipline i : disciplinesList) {
+        QList<int> newGroups;
+        for (int j : i.mGroups) {
+            bool ind = false;
+            for (Group k : groupsList) {
+                if(j == k.mGroupID) {
+                    ind = true;
+                    break;
+                }
+            }
+            if (ind) {
+                newGroups.append(j);
+            }
         }
         i.mGroups = newGroups;
     }
 }
 
-void DataBases::insertUser(QString iLogin, QString iPassword,  int iRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, int sGrant, QList<int> sGrades)
-{
-    QFile outFile("data/Users.bin");
-
-    if (outFile.open(QIODevice::Append))
-    {
-        QDataStream outStream(&outFile);
-        outStream << iLogin << iPassword << iRole;
-        if (iRole == 0)
-        {
-            qDebug() << "[DataBases::insertUser] Insert: " << iLogin << iPassword << iRole << sID << sGroupID << sSurname << sName << sPatronymic << sGrant << sGrades.length();
-            outStream << sID << sGroupID << sSurname << sName << sPatronymic << sGrant << sGrades.length();
-            for (int j; j<sGrades.length(); j++)
-            {
-                outStream << sGrades[j];
-            }
-        }
-        //qDebug() << "[DataBases::insertUser] Insert: " << iLogin << iPassword << iRole;
-    }
-    outFile.close();
-}
-
 void DataBases::overwriteUsers()
 {
-    qDebug() << "[DataBases::overwriteUsers]";
     QFile outFile("data/Users.bin");
 
-    if (outFile.open(QIODevice::WriteOnly))
-    {
+    if (outFile.open(QIODevice::WriteOnly)) {
         QDataStream outStream(&outFile);
-        qDebug() << "[DataBases::overwriteUsers] usersList.length(): " << usersList.length();
-        for (auto &i : usersList)
-        {
+
+        for (auto &i : usersList) {
             outStream << i.getLogin() << i.getPassword() << i.getRole();
-            qDebug() << "[DataBases::overwriteUsers] Now: " << i.getLogin();
+
             //Если студент - заносятся поля студента
-            if (i.getRole() == 0)
-            {
+            if (i.getRole() == 0) {
                 outStream << i.mID << i.mGroupID << i.mSurname << i.mName
                           << i.mPatronymic << i.mGrant << i.mGrades.length();
-                for (auto j : i.mGrades)
-                {
+                for (auto &j : i.mGrades) {
                     outStream << j;
                 }
             }
@@ -233,18 +208,14 @@ void DataBases::overwriteDisciplines()
 {
     QFile outFile("data/Disciplines.bin");
 
-    if (outFile.open(QIODevice::WriteOnly))
-    {
+    if (outFile.open(QIODevice::WriteOnly)) {
         QDataStream outStream(&outFile);
         outStream << nextDisciplineID;
-        qDebug() << "[DataBases::overwriteDisciplines] disciplinesList.length(): " << disciplinesList.length();
-        for (Discipline i : disciplinesList)
-        {
+
+        for (auto &i : disciplinesList) {
             outStream << i.mName << i.mDisciplineID << i.mForm << i.mGroups.length();
-            qDebug() << "[DataBases::overwriteDisciplines] write: " << i.mName << i.mDisciplineID << i.mForm << i.mGroups.length();
-            for (int j=0; j<i.mGroups.length(); j++)
-            {
-                outStream << i.mGroups[j];
+            for (auto &j : i.mGroups) {
+                    outStream << j;
             }
         }
     }
@@ -255,65 +226,53 @@ void DataBases::overwriteGroups()
 {
     QFile outFile("data/Groups.bin");
 
-    if (outFile.open(QIODevice::WriteOnly))
-    {
+    if (outFile.open(QIODevice::WriteOnly)) {
         QDataStream outStream(&outFile);
         outStream << nextGroupID;
-        for (auto &i : groupsList)
-        {
+        for (auto &i : groupsList) {
             outStream << i.mGroupID << i.mNumber;
         }
     }
     outFile.close();
 }
 
-int DataBases::findAuthUser(QString fLogin, QString fPassword)
+User *DataBases::findAuthUser(QString fLogin, QString fPassword)
 {
-    for (int i=0; i<usersList.length();i++)
-    {
-        qDebug() << "[DataBases::findUser] Pair comparison (" << i+1 << "/" << usersList.length() << "): " << "(L: " << usersList[i].getLogin() << " P: " << usersList[i].getPassword() << ") & (L: "
-                 << fLogin << " P: " << fPassword << ")";
-        if (usersList[i].getLogin() == fLogin)
-        {
-            qDebug() << "[DataBases::findUser] Login match.";
-            if (usersList[i].getPassword() == fPassword)
-            {
-                qDebug() << "[DataBases::findUser] Passwords match.";
-                return(usersList[i].getRole());
+    for (int i = 0; i < usersList.length(); i++) {
+        if (usersList[i].getLogin() == fLogin) {
+            if (usersList[i].getPassword() == fPassword) {
+                User *found = &usersList[i];
+                return(found);
             }
-            qDebug() << "[DataBases::findUser] Passwords unmatch.";
         }
-        qDebug() << "[DataBases::findUser] Login unmatch.";
     }
-    return(-1);
+    User *unfound = new User("", "", -1);
+    return(unfound);
 }
 
-User* DataBases::findStudent(int fID)
+User *DataBases::findStudent(int fID)
 {
-    for (User &i : usersList)
-    {
+    for (User &i : usersList) {
         if (i.mID == fID) return(&i);
     }
 }
 
-Group* DataBases::findGroup(int fID)
+Group *DataBases::findGroup(int fID)
 {
-    for (Group &i : groupsList)
-    {
+    for (Group &i : groupsList) {
         if (i.mGroupID == fID) return(&i);
     }
-    Group* none = new Group(0, "", {}, {});
+    Group *none = new Group(0, "", {}, {});
     return(none);
 }
 
-Group* DataBases::findGroupName(QString fName)
+Group *DataBases::findGroupName(QString fName)
 {
-    for (Group &i : groupsList)
-    {
+    for (Group &i : groupsList) {
         if (i.mNumber == fName) return(&i);
     }
-    Group* none = new Group(0, "", {}, {});
-    return(none);
+    Group *unfound = new Group(0, "", {}, {});
+    return(unfound);
 }
 
 int DataBases::getNextDisciplineID()
