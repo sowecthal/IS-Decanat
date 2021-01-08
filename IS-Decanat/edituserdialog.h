@@ -21,7 +21,7 @@ private:
     User& mUser;
 
     //! Метод получения выбранной роли
-    int getSelectedRole();
+    User::roles getSelectedRole();
 
 public slots:
     //! Обрабатывает подтверждение диалога.

@@ -14,7 +14,7 @@ EditDisciplineDialog::EditDisciplineDialog(Discipline &sDiscipline, DataBases &s
 {
     ui->setupUi(this);
     //Заполнение списка групп.
-    for (int i : mDiscipline.mGroups) {
+    for (int &i : mDiscipline.mGroups) {
         mGroups.append(i);
     }
     //Ограничение длины имени.

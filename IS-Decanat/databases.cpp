@@ -13,7 +13,7 @@ DataBases::DataBases()
     loadUsers();
     loadDisciplines();
     loadGroups();
-    //Устранение несоответсвий в группах.
+    //Устранение несоответсвий.
     coinsideGroups();
 }
 
@@ -55,13 +55,23 @@ void DataBases::loadUsers()
                     tmpGrades.push_back(tmpGrade);
                 }
 
-                User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
+                User newUser(tmpLogin, tmpPassword, User::roles::STUDENT, tmpID, tmpGroupID,
                              tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
                 usersList.push_back(newUser);
             } else {
-                User newUser(tmpLogin, tmpPassword, tmpRole);
-                usersList.push_back(newUser);
-            }
+                if (tmpRole == 1) {
+                    User newUser(tmpLogin, tmpPassword, User::roles::SUPERVISOR);
+                    usersList.push_back(newUser);
+                } else {
+                    if (tmpRole == 2) {
+                        User newUser(tmpLogin, tmpPassword, User::roles::ADMIN);
+                        usersList.push_back(newUser);
+                    } else {
+                        User newUser(tmpLogin, tmpPassword, User::roles::UNKNOWN);
+                        usersList.push_back(newUser);
+                    }
+                }
+            }            
         }
     }
     inFile.close();
@@ -121,7 +131,7 @@ void DataBases::loadGroups()
 
             for (User &i : usersList) {
                 //Если найден студент, прикрепленный к группе - добавляем в список tmpStudents.
-                if ((i.getRole() == 0) && (i.mGroupID == tmpGroupID)) {
+                if ((i.getRole() == User::roles::STUDENT) && (i.mGroupID == tmpGroupID)) {
                     tmpStudents.append(&i);
                 }
             }
@@ -139,6 +149,17 @@ void DataBases::loadGroups()
     inFile.close();
 }
 
+void DataBases::reloadAll()
+{
+    groupsList.clear();
+    usersList.clear();
+    disciplinesList.clear();
+
+    loadUsers();
+    loadDisciplines();
+    loadGroups();
+}
+
 void DataBases::reloadGroups()
 {
     groupsList.clear();
@@ -147,10 +168,10 @@ void DataBases::reloadGroups()
 
 void DataBases::coinsideGroups()
 {
-    for (User i : usersList) {
-        if ((i.mGroupID != -1) && (i.getRole() == 0)) {
+    for (User &i : usersList) {
+        if ((i.mGroupID != -1) && (i.getRole() == User::roles::STUDENT)) {
             bool ind = false;
-            for (Group j : groupsList) {
+            for (Group &j : groupsList) {
                 if(i.mGroupID == j.mGroupID) {
                     ind = true;
                     break;
@@ -161,11 +182,11 @@ void DataBases::coinsideGroups()
             }
         }
     }
-    for (Discipline i : disciplinesList) {
+    for (Discipline &i : disciplinesList) {
         QList<int> newGroups;
-        for (int j : i.mGroups) {
+        for (int &j : i.mGroups) {
             bool ind = false;
-            for (Group k : groupsList) {
+            for (Group &k : groupsList) {
                 if(j == k.mGroupID) {
                     ind = true;
                     break;
@@ -179,6 +200,13 @@ void DataBases::coinsideGroups()
     }
 }
 
+void DataBases::overwriteAll()
+{
+    overwriteUsers();
+    overwriteDisciplines();
+    overwriteGroups();
+}
+
 void DataBases::overwriteUsers()
 {
     QFile outFile("data/Users.bin");
@@ -187,14 +215,29 @@ void DataBases::overwriteUsers()
         QDataStream outStream(&outFile);
 
         for (auto &i : usersList) {
-            outStream << i.getLogin() << i.getPassword() << i.getRole();
+            outStream << i.getLogin() << i.getPassword();
 
-            //Если студент - заносятся поля студента
-            if (i.getRole() == 0) {
-                outStream << i.mID << i.mGroupID << i.mSurname << i.mName
-                          << i.mPatronymic << i.mGrant << i.mGrades.length();
-                for (auto &j : i.mGrades) {
-                    outStream << j;
+            // Запись роли.
+            if (i.getRole() == User::roles::UNKNOWN) {
+                outStream << -1;
+            } else {
+                if (i.getRole() == User::roles::STUDENT) {
+                    outStream << 0;
+                    //Для студента, помимо роли, записываются поля студента;
+                    outStream << i.mID << i.mGroupID << i.mSurname << i.mName
+                              << i.mPatronymic << i.mGrant << i.mGrades.length();
+                    //Оценки.
+                    for (auto &j : i.mGrades) {
+                        outStream << j;
+                    }
+                } else {
+                    if (i.getRole() == User::roles::SUPERVISOR) {
+                        outStream << 1;
+                    } else {
+                        if (i.getRole() == User::roles::ADMIN) {
+                            outStream << 2;
+                        }
+                    }
                 }
             }
         }
@@ -244,24 +287,26 @@ User *DataBases::findAuthUser(QString fLogin, QString fPassword)
             }
         }
     }
-    User *unfound = new User("", "", -1);
+    User *unfound = new User("", "", User::roles::UNKNOWN);
     return(unfound);
 }
 
 User *DataBases::findStudent(int fID)
 {
-    for (User &i : usersList) {
-        if (i.mID == fID) return(&i);
+    for (User &found : usersList) {
+        if (found.mID == fID) return(&found);
     }
+    User *unfound = new User("", "", User::roles::UNKNOWN);
+    return(unfound);
 }
 
 Group *DataBases::findGroup(int fID)
 {
-    for (Group &i : groupsList) {
-        if (i.mGroupID == fID) return(&i);
+    for (Group &found : groupsList) {
+        if (found.mGroupID == fID) return(&found);
     }
-    Group *none = new Group(0, "", {}, {});
-    return(none);
+    Group *unfound = new Group(0, "", {}, {});
+    return(unfound);
 }
 
 Group *DataBases::findGroupName(QString fName)

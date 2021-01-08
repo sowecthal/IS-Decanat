@@ -6,24 +6,22 @@
 
 class User
 {
-private:
-    QString mLogin;
-    QString mPassword;
-    int mRole;
-
 public:
+    //! Конструктор по умолчанию
+    User() {}
+
+    //! Возможные роли.
+    enum roles {UNKNOWN, ADMIN, SUPERVISOR, STUDENT};
+
     //! Конструктор пользователя
-    User(QString uLogin, QString uPassword, int uRole);
+    User(QString uLogin, QString uPassword, roles uRole);
     /* uLogin - логин;
      * uPassword - пароль;
-     * uRole - роль:
-     *      0 - студент;
-     *      1 - диспетчер деканата;
-     *      2 - администратор ИС.
+     * uRole - роль.
      */
 
     //! Конструктор пользователя-студента
-    User(QString uLogin, QString uPassword, int uRole, int sID, int sGroupID, QString sSurname,
+    User(QString uLogin, QString uPassword, roles uRole, int sID, int sGroupID, QString sSurname,
          QString sName, QString sPatronymic, int sGrant, QList<int> sGrades);
     /* sID - внутренний номер студента;
      * sGroupID - внутренний номер группы студента;
@@ -41,7 +39,7 @@ public:
     int getRole();
 
     //! Метод редактирования пользователя
-    void editUser(QString eLogin, QString ePassword, int eRole);
+    void editUser(QString eLogin, QString ePassword, roles eRole);
 
     //! Поля пользователя-студетна
     int mID;
@@ -51,6 +49,12 @@ public:
     QString mPatronymic;
     int mGrant;
     QList<int> mGrades;
+
+private:
+    QString mLogin;
+    QString mPassword;
+    roles mRole;
+
 };
 
 #endif // USER_H

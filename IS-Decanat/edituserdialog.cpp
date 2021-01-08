@@ -16,9 +16,9 @@ EditUserDialog::EditUserDialog(User &sUser, QWidget *parent) :
     //Установка текущих значений.
     ui->linePassword->setText(mUser.getPassword());
     ui->lineLogin->setText(mUser.getLogin());
-    if (mUser.getRole() == 0) ui->radioStudent->setChecked(true);
-    if (mUser.getRole() == 1) ui->radioSupervisor->setChecked(true);
-    if (mUser.getRole() == 2) ui->radioAdmin->setChecked(true);
+    if (mUser.getRole() == User::roles::STUDENT) ui->radioStudent->setChecked(true);
+    if (mUser.getRole() == User::roles::SUPERVISOR) ui->radioSupervisor->setChecked(true);
+    if (mUser.getRole() == User::roles::ADMIN) ui->radioAdmin->setChecked(true);
 }
 
 EditUserDialog::~EditUserDialog()
@@ -26,25 +26,25 @@ EditUserDialog::~EditUserDialog()
     delete ui;
 }
 
-int EditUserDialog::getSelectedRole()
+User::roles EditUserDialog::getSelectedRole()
 {
     //Если выбранна радио-кнопка - вернуть соответствующую ей роль.
     if (ui->radioStudent->isChecked()) {
-        return(0);
+        return(User::roles::STUDENT);
     }
     if (ui->radioSupervisor->isChecked()) {
-        return(1);
+        return(User::roles::SUPERVISOR);
     }
     if (ui->radioAdmin->isChecked()) {
-        return(2);
+        return(User::roles::ADMIN);
     }
-    return(-1);
+    return(User::roles::UNKNOWN);
 }
 
 void EditUserDialog::accept()
 {
     //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept.
-    if ((getSelectedRole() == -1 || ui->lineLogin->text().isEmpty()) || ui->linePassword->text().isEmpty()) {
+    if ((getSelectedRole() == User::roles::UNKNOWN || ui->lineLogin->text().isEmpty()) || ui->linePassword->text().isEmpty()) {
         QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
     } else {
         if (((mUser.getLogin() != ui->lineLogin->text()) || mUser.getPassword() != ui->linePassword->text()) ||  mUser.getRole() != getSelectedRole()) {

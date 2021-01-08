@@ -12,6 +12,7 @@ class DataBases
 {
 
 public:
+    //! Конструктор по умолчанию
     DataBases();
 
     //! Поиск пользователя для авторизации
@@ -28,12 +29,14 @@ public:
     Group *findGroupName(QString fName);
 
     //! Перезапись файлов
+    void overwriteAll();
     void overwriteUsers();
     void overwriteDisciplines();
     void overwriteGroups();
 
-    //! Перезагрузка групп
+    //! Перезагрузка
     void reloadGroups();
+    void reloadAll();
 
     //! Получение доступного id
     int getNextDisciplineID();

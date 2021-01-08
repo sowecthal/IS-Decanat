@@ -10,6 +10,9 @@
 class Group
 {
 public:
+    //! Конструктор по умолчанию
+    Group() {}
+    //! Конструктор группы
     Group(int gGroupID, QString gNumber, QList <User*> gStudents, QList <Discipline*> gDisciplines);
 
     int mGroupID;

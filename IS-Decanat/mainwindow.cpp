@@ -33,17 +33,17 @@ MainWindow::~MainWindow()
 void MainWindow::setUser(User* sUser)
 {
     mUser = sUser;
-    if (mUser->getRole() == 0) {
+    if (mUser->getRole() == User::roles::STUDENT) {
         mMode = 0;
         this->setWindowTitle("Сеанс студента");
         ui->comboBox->addItems(Config::studentComboBoxItems);
     } else {
-        if (mUser->getRole() == 1){
+        if (mUser->getRole() == User::roles::SUPERVISOR){
             mMode = 1;
             this->setWindowTitle("Сеанс диспетчера");
             ui->comboBox->addItems(Config::supervisorComboBoxItems);
          } else {
-            if (mUser->getRole() == 2) {
+            if (mUser->getRole() == User::roles::ADMIN) {
                 mMode = 2;
                 this->setWindowTitle("Сеанс администратора");
                 ui->comboBox->addItems(Config::adminComboBoxItems);
@@ -73,7 +73,17 @@ void MainWindow::setData()
         for(int i = 0; i < db.usersList.length() ; i++) {
             model->setItem(i,0,new QStandardItem(QString(db.usersList[i].getLogin())));
             model->setItem(i,1,new QStandardItem(QString(db.usersList[i].getPassword())));
-            model->setItem(i,2,new QStandardItem(QString(Config::roles[db.usersList[i].getRole()])));
+            if (db.usersList[i].getRole() == User::roles::STUDENT) {
+                model->setItem(i,2,new QStandardItem(QString("Студент")));
+            } else {
+                if (db.usersList[i].getRole() == User::roles::SUPERVISOR) {
+                    model->setItem(i,2,new QStandardItem(QString("Диспетчер деканата")));
+                } else {
+                    if (db.usersList[i].getRole() == User::roles::ADMIN) {
+                        model->setItem(i,2,new QStandardItem(QString("Администратор")));
+                    }
+                }
+            }
         }
         ui->tableView->setModel(model);
     } else {
@@ -92,7 +102,7 @@ void MainWindow::setData()
             {
                 students.clear();
                 for (User &i : db.usersList) {
-                    if (i.getRole() == 0) students.push_back(&i);
+                    if (i.getRole() == User::roles::STUDENT) students.push_back(&i);
                 }
 
                 model = new QStandardItemModel(students.length(), 5, this);
@@ -248,7 +258,7 @@ void MainWindow::addNoteThis()
 {
     if (ui->comboBox->currentText() == "Пользователи") {
         //Создание пустого объекта.
-        User* user = new User("", "", -1);
+        User* user = new User("", "", User::roles::UNKNOWN);
         EditUserDialog eud(*user, this);
         eud.setWindowTitle("Создание пользователя");
 
