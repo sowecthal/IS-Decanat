@@ -28,8 +28,12 @@ private:
     QList<Group> mGroups;
     QList<QString> GroupsNumbers;
     QStandardItemModel* model;
-
+    //! Установка данных в таблицу
     void setData();
+    //! Получение индекса для QComboBox
+    int getGrantIndex();
+    //! Получение enum-типа стипендии по индексу в QComboBox
+    User::grants getGrantByIndex(int index);
 
     int findGrade(int fDisciplineID);
 

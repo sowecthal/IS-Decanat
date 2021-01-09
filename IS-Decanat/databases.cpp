@@ -42,7 +42,7 @@ void DataBases::loadUsers()
                 int tmpGroupID;
                 int tmpLen;
                 int tmpGrade;
-                int tmpGrant;
+                User::grants tmpGrant;
                 int tmpDisc;
                 QList<int> tmpGrades;
 

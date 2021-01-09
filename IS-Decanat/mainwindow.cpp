@@ -169,7 +169,15 @@ void MainWindow::setData()
                             model = new QStandardItemModel(1, 1, this);
                             model->setHorizontalHeaderItem(0, new QStandardItem(QString("Статус")));
 
-                            model->setItem(0,0,new QStandardItem(QString(Config::grant[mUser->mGrant])));
+                            if (mUser->mGrant == User::grants::HIGHT) {
+                                model->setItem(0,0,new QStandardItem(QString(Config::grant[2])));
+                            } else {
+                                if (mUser->mGrant == User::grants::REGULAR) {
+                                    model->setItem(0,0,new QStandardItem(QString(Config::grant[1])));
+                                } else {
+                                    model->setItem(0,0,new QStandardItem(QString(Config::grant[0])));
+                                }
+                            }
                             ui->tableView->setModel(model);
                         }
                     }

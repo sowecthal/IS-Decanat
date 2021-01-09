@@ -12,6 +12,8 @@ public:
 
     //! Возможные роли.
     enum roles {UNKNOWN, ADMIN, SUPERVISOR, STUDENT};
+    //! Возможный тип стипендии.
+    enum grants {NONE, REGULAR, HIGHT};
 
     //! Конструктор пользователя
     User(QString uLogin, QString uPassword, roles uRole);
@@ -22,14 +24,11 @@ public:
 
     //! Конструктор пользователя-студента
     User(QString uLogin, QString uPassword, roles uRole, int sID, int sGroupID, QString sSurname,
-         QString sName, QString sPatronymic, int sGrant, QList<int> sGrades);
+         QString sName, QString sPatronymic, grants sGrant, QList<int> sGrades);
     /* sID - внутренний номер студента;
      * sGroupID - внутренний номер группы студента;
      * sName, sSurname, sPatronymic - ФИО;
      * sGrant - получаемая стипендия:
-     *      0 - лишён;
-     *      1 - обычная;
-     *      2 - повышенная;
      * sGrades - список оценок.
      */
 
@@ -47,7 +46,7 @@ public:
     QString mSurname;
     QString mName;
     QString mPatronymic;
-    int mGrant;
+    grants mGrant;
     QList<int> mGrades;
 
 private:

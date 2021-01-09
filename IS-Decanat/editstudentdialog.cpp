@@ -36,8 +36,9 @@ editStudentDialog::editStudentDialog(User &sStuden, QList<Group> sGroups, DataBa
             ui->groupComboBox->setCurrentText(i.mNumber);
         }
     }
-    //Установка текущей группы.
-    ui->grantComboBox->setCurrentIndex(mStudent.mGrant);
+    //Установка текущей стипендии.
+    ui->grantComboBox->setCurrentIndex(getGrantIndex());
+
     mGroup = mDB.findGroup(mStudent.mGroupID);
 
     setData();
@@ -97,6 +98,28 @@ void editStudentDialog::setGrade()
 
 }
 
+int editStudentDialog::getGrantIndex()
+{
+    if (mStudent.mGrant == User::grants::HIGHT) {
+        return(2);
+    }
+    if (mStudent.mGrant == User::grants::REGULAR) {
+        return(1);
+    }
+    return(0);
+}
+
+User::grants editStudentDialog::getGrantByIndex(int index)
+{
+    if (index == 2) {
+        return(User::grants::HIGHT);
+    }
+    if (index == 1) {
+        return(User::grants::REGULAR);
+    }
+    return(User::grants::NONE);
+}
+
 void editStudentDialog::accept()
 {
     //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept
@@ -118,10 +141,11 @@ void editStudentDialog::accept()
         }
         if (mStudent.mID != ui->lineNumber->text().toInt()) {
             mStudent.mID = ui->lineNumber->text().toInt();
-            ind = true;
+            ind = true;\
+
         }
-        if (mStudent.mGrant != ui->grantComboBox->currentIndex()) {
-            mStudent.mGrant = ui->grantComboBox->currentIndex();
+        if (getGrantIndex() != ui->grantComboBox->currentIndex()) {
+            mStudent.mGrant = getGrantByIndex(ui->grantComboBox->currentIndex());
             ind = true;
         }
         if (ui->groupComboBox->currentIndex() != -1) {
