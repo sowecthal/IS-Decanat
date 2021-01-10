@@ -24,12 +24,11 @@ public:
 
     //! Конструктор пользователя-студента
     User(QString uLogin, QString uPassword, roles uRole, int sID, int sGroupID, QString sSurname,
-         QString sName, QString sPatronymic, grants sGrant, QList<int> sGrades);
+         QString sName, QString sPatronymic, grants sGrant);
     /* sID - внутренний номер студента;
      * sGroupID - внутренний номер группы студента;
      * sName, sSurname, sPatronymic - ФИО;
      * sGrant - получаемая стипендия:
-     * sGrades - список оценок.
      */
 
     //! Методы получения значений полей
@@ -47,7 +46,6 @@ public:
     QString mName;
     QString mPatronymic;
     grants mGrant;
-    QList<int> mGrades;
 
 private:
     QString mLogin;

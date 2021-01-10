@@ -51,11 +51,11 @@ editStudentDialog::~editStudentDialog()
 
 int editStudentDialog::findGrade(int fDisciplineID)
 {
-    for (int i = 0; i <mStudent.mGrades.length(); i+=2) {
-        if (fDisciplineID == mStudent.mGrades[i]) {
-            return(mStudent.mGrades[i+1]);
-        }
-    }
+//    for (int i = 0; i <mStudent.mGrades.length(); i+=2) {
+//        if (fDisciplineID == mStudent.mGrades[i]) {
+//            return(mStudent.mGrades[i+1]);
+//        }
+//    }
     return(-1);
 }
 
@@ -68,11 +68,18 @@ void editStudentDialog::setData()
 
     for(int i = 0; i<mGroup->mDisciplines.length(); i++) {
         model->setItem(i,0,new QStandardItem(QString(mGroup->mDisciplines[i]->mName)));
-        model->setItem(i,1,new QStandardItem(QString(Config::disciplineFormOfControl[mGroup->mDisciplines[i]->mForm])));
+
+        if (mGroup->mDisciplines[i]->mForm == Discipline::forms::PASS) {
+            model->setItem(i,1,new QStandardItem(QString(Config::disciplineFormOfControl[0])));
+        } else {
+            if (mGroup->mDisciplines[i]->mForm == Discipline::forms::EXAM) {
+                model->setItem(i,1,new QStandardItem(QString(Config::disciplineFormOfControl[1])));
+            }
+        }
 
         int grade = findGrade(mGroup->mDisciplines[i]->mDisciplineID);
         if (grade != -1) {
-            if (mGroup->mDisciplines[i]->mForm == 0) {
+            if (mGroup->mDisciplines[i]->mForm == Discipline::forms::PASS) {
                 if (grade == 0) {
                     model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[0])));
                 } else {
@@ -81,7 +88,7 @@ void editStudentDialog::setData()
                     }
                 }
             } else {
-                if (mGroup->mDisciplines[i]->mForm == 1) {
+                if (mGroup->mDisciplines[i]->mForm == Discipline::forms::EXAM) {
                     model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[grade])));
                 }
             }
@@ -140,9 +147,13 @@ void editStudentDialog::accept()
             ind = true;
         }
         if (mStudent.mID != ui->lineNumber->text().toInt()) {
-            mStudent.mID = ui->lineNumber->text().toInt();
-            ind = true;\
-
+            if ((mDB.findStudent(ui->lineNumber->text().toInt())->getRole() != User::UNKNOWN) && (ui->lineNumber->text().toInt() != 0)) {
+                QMessageBox::warning(this, "Ошибка", "Данный номер студенческого билета уже используется.");
+                return;
+            } else {
+                mStudent.mID = ui->lineNumber->text().toInt();
+                ind = true;
+            }
         }
         if (getGrantIndex() != ui->grantComboBox->currentIndex()) {
             mStudent.mGrant = getGrantByIndex(ui->grantComboBox->currentIndex());

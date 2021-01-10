@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(DataBases &sDB, QWidget *parent = nullptr);
     ~MainWindow();
-    void setUser(User* sUser);
+    void setUser(User *sUser);
 
 private slots:
 
@@ -34,10 +34,10 @@ private slots:
 
 
 private:
-    DataBases& db;
+    DataBases &db;
     QList <User*> students;
     int mMode;
-    User* mUser;
+    User *mUser;
     QStandardItemModel* model;
     Ui::MainWindow *ui;
 

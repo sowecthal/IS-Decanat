@@ -3,6 +3,7 @@
 
 #include "dataclasses/user.h"
 #include "dataclasses/discipline.h"
+#include "dataclasses/grade.h"
 #include "dataclasses/group.h"
 
 #include <QString>
@@ -51,14 +52,16 @@ public:
 
     //! Списки объектов
     QList<User> usersList;
-    QList<Group> groupsList;
+    QList<Grade> gradesList;
     QList<Discipline> disciplinesList;
+    QList<Group> groupsList;
 
 private:
     //! Загрузка файлов
     void loadUsers();
     void loadGroups();
     void loadDisciplines();
+    void loadGrades();
 
     //! Поля следующих id
     int nextDisciplineID = 0;

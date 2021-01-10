@@ -24,6 +24,10 @@ private:
     //! Создает и устанавливает модели
     void setData();
 
+    int getFormIndex();
+
+    Discipline::forms getFormByIndex(int index);
+
     Discipline &mDiscipline;
     QList<int> mGroups;
     QList<Group> oGroups;

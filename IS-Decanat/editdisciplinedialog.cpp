@@ -22,7 +22,7 @@ EditDisciplineDialog::EditDisciplineDialog(Discipline &sDiscipline, DataBases &s
     //Установка текущей наименования дисциплины.
     ui->lineName->setText(mDiscipline.mName);
     //Устновка текущей формы контроля.
-    ui->Form->setCurrentIndex(mDiscipline.mForm);
+    ui->Form->setCurrentIndex(getFormIndex());
     //Редактирование QLabel в соответствии с полученным номером дисциплины.
     ui->labelID->setText("Внутренний номер дисциплины: " + QString::number(mDiscipline.mDisciplineID));
 
@@ -45,6 +45,22 @@ EditDisciplineDialog::~EditDisciplineDialog()
     delete ui;
 }
 
+int EditDisciplineDialog::getFormIndex()
+{
+    if (mDiscipline.mForm == Discipline::forms::PASS) {
+        return(0);
+    }
+    return(1);
+}
+
+Discipline::forms EditDisciplineDialog::getFormByIndex(int index)
+{
+    if (index == 0) {
+        return(Discipline::forms::PASS);
+    }
+    return(Discipline::forms::EXAM);
+}
+
 void EditDisciplineDialog::accept()
 {
     //Если обнаруженно несовпадение значений - вызываем метод замены, закрываем с accept.
@@ -52,7 +68,7 @@ void EditDisciplineDialog::accept()
         QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
     } else {
         mDiscipline.mName = ui->lineName->text();
-        mDiscipline.mForm = ui->Form->currentIndex();
+        mDiscipline.mForm = getFormByIndex(ui->Form->currentIndex());
         mDiscipline.mGroups = mGroups;
         QDialog::accept();
     }

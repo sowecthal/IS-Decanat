@@ -12,6 +12,7 @@ SOURCES += \
     authwindow.cpp \
     databases.cpp \
     dataclasses/discipline.cpp \
+    dataclasses/grade.cpp \
     dataclasses/group.cpp \
     dataclasses/user.cpp \
     editdisciplinedialog.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     config.h \
     databases.h \
     dataclasses/discipline.h \
+    dataclasses/grade.h \
     dataclasses/group.h \
     dataclasses/user.h \
     editdisciplinedialog.h \

@@ -12,6 +12,7 @@ DataBases::DataBases()
     //Загрузка из двоичных файлов.
     loadUsers();
     loadDisciplines();
+    //loadGrades();
     loadGroups();
     //Устранение несоответсвий.
     coinsideGroups();
@@ -28,49 +29,28 @@ void DataBases::loadUsers()
         while (!inStream.atEnd()) {
             QString tmpPassword;
             QString tmpLogin;
-            int tmpRole;
+            User::roles tmpRole;
 
             inStream >> tmpLogin >> tmpPassword >> tmpRole;
 
             //Если роль == 0(соответствует студенту) - читаем дальше в поля студента, используем перегруженный конструктор.
-            if (tmpRole == 0) {
+            if (tmpRole == User::roles::STUDENT) {
                 //Временные переменные студента.
                 QString tmpsSurname;
                 QString tmpName;
                 QString tmpPatronymic;
                 int tmpID;
                 int tmpGroupID;
-                int tmpLen;
-                int tmpGrade;
                 User::grants tmpGrant;
-                int tmpDisc;
-                QList<int> tmpGrades;
 
-                inStream >> tmpID >> tmpGroupID >> tmpsSurname >> tmpName >> tmpPatronymic >> tmpGrant >> tmpLen;
+                inStream >> tmpID >> tmpGroupID >> tmpsSurname >> tmpName >> tmpPatronymic >> tmpGrant;
 
-                //Чтение всех оценок.
-                for (int i = 0; i < tmpLen; i++) {
-                    inStream >> tmpDisc >> tmpGrade;
-                    tmpGrades.push_back(tmpDisc);
-                    tmpGrades.push_back(tmpGrade);
-                }
-
-                User newUser(tmpLogin, tmpPassword, User::roles::STUDENT, tmpID, tmpGroupID,
-                             tmpsSurname, tmpName, tmpPatronymic, tmpGrant, tmpGrades);
+                User newUser(tmpLogin, tmpPassword, tmpRole, tmpID, tmpGroupID,
+                             tmpsSurname, tmpName, tmpPatronymic, tmpGrant);
                 usersList.push_back(newUser);
-            } else {
-                if (tmpRole == 1) {
-                    User newUser(tmpLogin, tmpPassword, User::roles::SUPERVISOR);
-                    usersList.push_back(newUser);
-                } else {
-                    if (tmpRole == 2) {
-                        User newUser(tmpLogin, tmpPassword, User::roles::ADMIN);
-                        usersList.push_back(newUser);
-                    } else {
-                        User newUser(tmpLogin, tmpPassword, User::roles::UNKNOWN);
-                        usersList.push_back(newUser);
-                    }
-                }
+            } else {   
+                User newUser(tmpLogin, tmpPassword, tmpRole);
+                usersList.push_back(newUser);
             }            
         }
     }
@@ -91,7 +71,7 @@ void DataBases::loadDisciplines()
         while (!inStream.atEnd()) {
             QString tmpName;
             int tmpDisciplinesID;
-            int tmpForm;
+            Discipline::forms tmpForm;
             int tmpLength;
             int tmpGroupID;
             QList <int> tmpGroups;
@@ -106,6 +86,42 @@ void DataBases::loadDisciplines()
 
             Discipline newDiscipline(tmpName, tmpDisciplinesID, tmpForm, tmpGroups);
             disciplinesList.push_back(newDiscipline); 
+        }
+    }
+}
+
+void DataBases::loadGrades()
+{
+    QFile inFile("data/Grades.bin");
+
+    if (inFile.open(QIODevice::ReadOnly)) {
+        QDataStream inStream(&inFile);
+
+        //Пока в потоке есть данные:
+        while (!inStream.atEnd()) {
+            int tmpStudentID;
+            int tmpDisciplineID;
+            Grade::grades tmpValue;
+            User *tmpStudent;
+            Discipline *tmpDiscipline;
+
+            inStream >> tmpStudentID >> tmpDisciplineID >> tmpValue;
+
+            for (User &nowUser : usersList) {
+                if (nowUser.mID == tmpStudentID) {
+                    tmpStudent = &nowUser;
+                    break;
+                }
+            }
+            for (Discipline &nowDiscipline : disciplinesList) {
+                if (nowDiscipline.mDisciplineID == tmpDisciplineID) {
+                    tmpDiscipline = &nowDiscipline;
+                    break;
+                }
+            }
+
+            Grade newGrade(tmpStudent, tmpDiscipline, tmpValue);
+            gradesList.push_back(newGrade);
         }
     }
 }
@@ -218,27 +234,13 @@ void DataBases::overwriteUsers()
             outStream << i.getLogin() << i.getPassword();
 
             // Запись роли.
-            if (i.getRole() == User::roles::UNKNOWN) {
-                outStream << -1;
-            } else {
-                if (i.getRole() == User::roles::STUDENT) {
-                    outStream << 0;
-                    //Для студента, помимо роли, записываются поля студента;
-                    outStream << i.mID << i.mGroupID << i.mSurname << i.mName
-                              << i.mPatronymic << i.mGrant << i.mGrades.length();
-                    //Оценки.
-                    for (auto &j : i.mGrades) {
-                        outStream << j;
-                    }
-                } else {
-                    if (i.getRole() == User::roles::SUPERVISOR) {
-                        outStream << 1;
-                    } else {
-                        if (i.getRole() == User::roles::ADMIN) {
-                            outStream << 2;
-                        }
-                    }
-                }
+
+            outStream << i.getRole();
+
+            if (i.getRole() == User::roles::STUDENT) {
+                //Для студента, помимо роли, записываются поля студента;
+                outStream << i.mID << i.mGroupID << i.mSurname << i.mName
+                          << i.mPatronymic << i.mGrant;
             }
         }
     }
@@ -325,7 +327,7 @@ int DataBases::getNextDisciplineID()
 
 int DataBases::getNextGroupID()
 {
-    return(nextDisciplineID + 1);
+    return(nextGroupID + 1);
 }
 
 void DataBases::incrementNextDisciplineID()
@@ -335,5 +337,5 @@ void DataBases::incrementNextDisciplineID()
 
 void DataBases::incrementNextGroupID()
 {
-    nextDisciplineID++;
+    nextGroupID++;
 }

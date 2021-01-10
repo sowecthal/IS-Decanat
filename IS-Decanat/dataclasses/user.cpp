@@ -8,7 +8,7 @@ User::User(QString uLogin, QString uPassword, roles uRole)
     mRole = uRole;
 }
 
-User::User(QString uLogin, QString uPassword, roles uRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, grants sGrant, QList<int> sGrades)
+User::User(QString uLogin, QString uPassword, roles uRole, int sID, int sGroupID, QString sSurname, QString sName, QString sPatronymic, grants sGrant)
 {
     mLogin = uLogin;
     mPassword = uPassword;
@@ -20,7 +20,6 @@ User::User(QString uLogin, QString uPassword, roles uRole, int sID, int sGroupID
         mName = sName;
         mPatronymic = sPatronymic;
         mGrant = sGrant;
-        mGrades = sGrades;
     }
 }
 
@@ -56,7 +55,6 @@ void User::editUser(QString eLogin, QString ePassword, roles eRole)
         mName = "";
         mPatronymic = "";
         mGrant = grants::NONE;
-        mGrades = {};
     }
 
     mRole = eRole;

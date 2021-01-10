@@ -18,7 +18,7 @@ public:
 
 private:
     Ui::EditUserDialog *ui;
-    User& mUser;
+    User &mUser;
 
     //! Метод получения выбранной роли
     User::roles getSelectedRole();

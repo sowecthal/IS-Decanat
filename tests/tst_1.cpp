@@ -100,7 +100,7 @@ void tst::findStudent()
 
     int tstSID = 1234;
 
-    User tstStudent("student", "student", User::roles::STUDENT, tstSID, 0, "", "", "", User::grants::REGULAR, {});
+    User tstStudent("student", "student", User::roles::STUDENT, tstSID, 0, "", "", "", User::grants::REGULAR);
 
     User *received = tstDataBases.findStudent(tstSID);
     QVERIFY(received->getRole() == User::roles::UNKNOWN);

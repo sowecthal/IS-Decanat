@@ -22,7 +22,6 @@ MainWindow::MainWindow(DataBases &sDB, QWidget *parent)  :
     ui->setupUi(this);
     ui->toolBar->setMovable(false);
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-
 }
 
 MainWindow::~MainWindow()
@@ -54,11 +53,11 @@ void MainWindow::setUser(User* sUser)
 
 int MainWindow::findGrade(int fDisciplineID)
 {
-    for (int i= 0; i < mUser->mGrades.length(); i += 2) {
-        if (fDisciplineID == mUser->mGrades[i]) {
-            return(mUser->mGrades[i+1]);
-        }
-    }
+//    for (int i= 0; i < mUser->mGrades.length(); i += 2) {
+//        if (fDisciplineID == mUser->mGrades[i]) {
+//            return(mUser->mGrades[i+1]);
+//        }
+//    }
     return(-1);
 }
 
@@ -129,7 +128,13 @@ void MainWindow::setData()
                     for(int i = 0; i < db.disciplinesList.length() ; i++)
                     {
                         model->setItem(i,0,new QStandardItem(QString(db.disciplinesList[i].mName)));
-                        model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[db.disciplinesList[i].mForm]));
+                        if (db.disciplinesList[i].mForm == Discipline::forms::PASS) {
+                            model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[0]));
+                        } else {
+                            if (db.disciplinesList[i].mForm == Discipline::forms::EXAM) {
+                                model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[1]));
+                            }
+                        }
                     }
                     ui->tableView->setModel(model);
                 } else {
@@ -142,18 +147,24 @@ void MainWindow::setData()
                         Group* nowGroup = db.findGroup(mUser->mGroupID);
                         for(int i = 0; i<nowGroup->mDisciplines.length(); i++) {
                             model->setItem(i,0,new QStandardItem(QString(nowGroup->mDisciplines[i]->mName)));
-                            model->setItem(i,1,new QStandardItem(QString(Config::disciplineFormOfControl[nowGroup->mDisciplines[i]->mForm])));
+                            if (db.disciplinesList[i].mForm == Discipline::forms::PASS) {
+                                model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[0]));
+                            } else {
+                                if (db.disciplinesList[i].mForm == Discipline::forms::EXAM) {
+                                    model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[1]));
+                                }
+                            };
 
                             int grade = findGrade(nowGroup->mDisciplines[i]->mDisciplineID);
                             if (grade != -1) {
-                                if (nowGroup->mDisciplines[i]->mForm == 0) {
+                                if (nowGroup->mDisciplines[i]->mForm == Discipline::forms::PASS) {
                                     if (grade == 0) {
                                         model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[0])));
                                     } else {
                                         if (grade > 0) {
                                             model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[1])));
                                         } else {
-                                            if (nowGroup->mDisciplines[i]->mForm == 1) {
+                                            if (nowGroup->mDisciplines[i]->mForm == Discipline::forms::EXAM) {
                                                 model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[grade])));
                                             } else {
                                                 model->setItem(i,2,new QStandardItem(QString("Нет")));
@@ -282,7 +293,7 @@ void MainWindow::addNoteThis()
         //Дальше по аналогии:
     } else {
         if (ui->comboBox->currentText() == "Дисциплины") {
-            Discipline* discipline = new Discipline("", db.getNextDisciplineID(), 0, {});
+            Discipline* discipline = new Discipline("", db.getNextDisciplineID(), Discipline::forms::PASS, {});
             EditDisciplineDialog edd(*discipline, db, this);
             edd.setWindowTitle("Создание дисциплины");
 
@@ -302,7 +313,7 @@ void MainWindow::addNoteThis()
 
                 if (egd.exec() == QDialog::Accepted) {
                     db.groupsList.push_back(*group);
-                    db.incrementNextDisciplineID();
+                    db.incrementNextGroupID();
                     db.overwriteGroups();
                     setData();
                 }
@@ -326,16 +337,16 @@ void MainWindow::removeNoteThis()
                     setData();
             } else {
                 if (ui->comboBox->currentText() == "Дисциплины") {
-                    for (User& i : db.usersList) {
-                        for (int j = 0; j<i.mGrades.length(); j++) {
-                            if (i.mGrades[j] == db.disciplinesList[idc[0].row()].mDisciplineID && j%2 == 0) {
-                                i.mGrades.removeAt(j);
-                                i.mGrades.removeAt(j+1);
-                                db.overwriteUsers();
-                                break;
-                            }
-                        }
-                    }
+//                    for (User& i : db.usersList) {
+//                        for (int j = 0; j<i.mGrades.length(); j++) {
+//                            if (i.mGrades[j] == db.disciplinesList[idc[0].row()].mDisciplineID && j%2 == 0) {
+//                                i.mGrades.removeAt(j);
+//                                i.mGrades.removeAt(j+1);
+//                                db.overwriteUsers();
+//                                break;
+//                            }
+//                        }
+//                    }
 
                     db.disciplinesList.removeAt(idc[0].row());
                     db.overwriteDisciplines();
