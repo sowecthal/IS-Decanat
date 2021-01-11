@@ -43,6 +43,6 @@ private:
 
     void setData();
 
-    int findGrade(int fDisciplinesID);
+    Grade::grades findGrade(int fDisciplinesID);
 };
 #endif // MAINWINDOW_H

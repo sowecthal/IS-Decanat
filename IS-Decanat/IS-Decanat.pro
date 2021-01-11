@@ -8,21 +8,6 @@ CONFIG += c++11
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += \
-    authwindow.cpp \
-    databases.cpp \
-    dataclasses/discipline.cpp \
-    dataclasses/grade.cpp \
-    dataclasses/group.cpp \
-    dataclasses/user.cpp \
-    editdisciplinedialog.cpp \
-    editgroupdialog.cpp \
-    editstudentdialog.cpp \
-    edituserdialog.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    #tables/userstable.cpp
-
 HEADERS += \
     authwindow.h \
     config.h \
@@ -35,8 +20,21 @@ HEADERS += \
     editgroupdialog.h \
     editstudentdialog.h \
     edituserdialog.h \
-    mainwindow.h \
-    #tables/userstable.h
+    mainwindow.h
+
+SOURCES += \
+    authwindow.cpp \
+    databases.cpp \
+    dataclasses/discipline.cpp \
+    dataclasses/grade.cpp \
+    dataclasses/group.cpp \
+    dataclasses/user.cpp \
+    editdisciplinedialog.cpp \
+    editgroupdialog.cpp \
+    editstudentdialog.cpp \
+    edituserdialog.cpp \
+    main.cpp \
+    mainwindow.cpp
 
 FORMS += \
     authwindow.ui \

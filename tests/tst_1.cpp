@@ -3,12 +3,14 @@
 #include "../IS-Decanat/databases.h"
 #include "../IS-Decanat/dataclasses/user.h"
 #include "../IS-Decanat/dataclasses/group.h"
+#include "../IS-Decanat/dataclasses/grade.h"
 #include "../IS-Decanat/dataclasses/discipline.h"
 
 Q_DECLARE_METATYPE(DataBases);
 Q_DECLARE_METATYPE(User);
 Q_DECLARE_METATYPE(Group);
 Q_DECLARE_METATYPE(Discipline);
+Q_DECLARE_METATYPE(Grade);
 
 class tst : public QObject
 {

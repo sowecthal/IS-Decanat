@@ -4,21 +4,31 @@
 #include "user.h"
 #include "discipline.h"
 
+#include <QDataStream>
+
 class Grade
 {
 public:
-    enum grades {NOPASSED, PASSED, BAD, OKAY, GOOD, EXCELLENT};
+    enum grades {NONE, NOPASSED, PASSED, BAD, OKAY, GOOD, EXCELLENT};
     //! Конструктор по умолчанию
-    Grade() {}
+    Grade();
     //! Конструктор оценки
-    Grade(User *sUser, Discipline *sDiscipline, grades sGrade);
+    Grade(const User &sStudent, const Discipline &sDiscipline, grades sGrade);
     //! Устанавливает новое значение
     void reset(grades newGrade);
-    //! Возвращает значение
-    Grade::grades value() const;
+    //! Запись в поток
+    void write(QDataStream &ost);
+    //! Возвращает оценку студента по дисциплине, если ID совпали
+    Grade::grades find(int fStudentID, int fDisciplineID);
+    //! Возвращает True, если совпал ID дисциплины
+    bool belongsDiscipline(int fDisciplineID);
+    //! Возвращает True, если совпал ID студента
+    bool belongsStudent(int fStudentID);
+    //! Возвращает True, если совпали ID
+    bool itsMe(int fStudentID, int fDisciplineID);
 private:
-    User *mStudent;
-    Discipline *mDiscipline;
+    const User &mStudent;
+    const Discipline &mDiscipline;
     Grade::grades mValue;
 
     //! Проверяет соответсвие дисциплыны и оценки, возвращает валидное  значение

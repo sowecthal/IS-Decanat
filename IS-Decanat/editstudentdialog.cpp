@@ -1,9 +1,9 @@
 #include "editstudentdialog.h"
-#include "databases.h"
 #include "config.h"
 #include "ui_editstudentdialog.h"
 
 #include <QMessageBox>
+#include <QDebug>
 
 editStudentDialog::editStudentDialog(User &sStuden, QList<Group> sGroups, DataBases &sDB, QWidget *parent) :
     QDialog(parent),
@@ -36,6 +36,7 @@ editStudentDialog::editStudentDialog(User &sStuden, QList<Group> sGroups, DataBa
             ui->groupComboBox->setCurrentText(i.mNumber);
         }
     }
+
     //Установка текущей стипендии.
     ui->grantComboBox->setCurrentIndex(getGrantIndex());
 
@@ -49,14 +50,9 @@ editStudentDialog::~editStudentDialog()
     delete ui;
 }
 
-int editStudentDialog::findGrade(int fDisciplineID)
+Grade::grades editStudentDialog::findGrade(int fDisciplineID)
 {
-//    for (int i = 0; i <mStudent.mGrades.length(); i+=2) {
-//        if (fDisciplineID == mStudent.mGrades[i]) {
-//            return(mStudent.mGrades[i+1]);
-//        }
-//    }
-    return(-1);
+    return(mDB.findGrade(mStudent.mID, fDisciplineID));
 }
 
 void editStudentDialog::setData()
@@ -77,19 +73,29 @@ void editStudentDialog::setData()
             }
         }
 
-        int grade = findGrade(mGroup->mDisciplines[i]->mDisciplineID);
-        if (grade != -1) {
-            if (mGroup->mDisciplines[i]->mForm == Discipline::forms::PASS) {
-                if (grade == 0) {
-                    model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[0])));
-                } else {
-                    if (grade > 0) {
-                        model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[1])));
-                    }
-                }
+        Grade::grades grade = findGrade(mGroup->mDisciplines[i]->mDisciplineID);
+        if (grade != Grade::NONE) {
+            if (grade == Grade::NOPASSED) {
+                model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[1])));
             } else {
-                if (mGroup->mDisciplines[i]->mForm == Discipline::forms::EXAM) {
-                    model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[grade])));
+                if (grade == Grade::PASSED) {
+                    model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[2])));
+                } else {
+                    if (grade == Grade::BAD) {
+                       model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[1])));
+                    } else {
+                        if (grade == Grade::OKAY) {
+                            model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[2])));
+                        } else {
+                            if (grade == Grade::GOOD) {
+                                model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[3])));
+                            } else {
+                                if (grade == Grade::EXCELLENT) {
+                                    model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[4])));
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } else {
@@ -97,12 +103,6 @@ void editStudentDialog::setData()
         }
     }
     ui->tableView->setModel(model);
-}
-
-
-void editStudentDialog::setGrade()
-{
-
 }
 
 int editStudentDialog::getGrantIndex()
@@ -133,7 +133,6 @@ void editStudentDialog::accept()
     if (ui->lineSurname->text().isEmpty()|| ui->lineName->text().isEmpty() || ui->lineNumber->text().isEmpty()) {
         QMessageBox::warning(this, "Ошибка", "Заполнены не все поля.");
     } else {
-        bool ind = false;
         if (mStudent.mSurname != ui->lineSurname->text()) {
             mStudent.mSurname = ui->lineSurname->text();
             ind = true;
@@ -146,8 +145,8 @@ void editStudentDialog::accept()
             mStudent.mPatronymic = ui->linePatronymic->text();
             ind = true;
         }
-        if (mStudent.mID != ui->lineNumber->text().toInt()) {
-            if ((mDB.findStudent(ui->lineNumber->text().toInt())->getRole() != User::UNKNOWN) && (ui->lineNumber->text().toInt() != 0)) {
+        if (mStudent.mID != ui->lineNumber->text().toInt() || mStudent.mID == 0) {
+            if (mDB.findStudent(ui->lineNumber->text().toInt())->getRole() != User::UNKNOWN) {
                 QMessageBox::warning(this, "Ошибка", "Данный номер студенческого билета уже используется.");
                 return;
             } else {
@@ -173,4 +172,104 @@ void editStudentDialog::accept()
     }
 }
 
+void editStudentDialog::setGradeThis()
+{
+    QModelIndexList idc = ui->tableView->selectionModel()->selectedRows();
+    if (idc.length() == 0) {
+        QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
+    } else {
+        /* Если попытка установить отсутствие оценки - удаляем её.
+         * p.s. Определение её наличия в БД встроенно в метод удаления.
+         */
+        if (ui->gradesComboBox->currentText() == Config::gradesExam[0]) {
+            ind = true;
+            mDB.deleteGrade(mStudent.mID, mGroup->mDisciplines[idc[0].row()]->mDisciplineID);
+        } else {
+            Grade::grades tmpGrade = findGrade(mGroup->mDisciplines[idc[0].row()]->mDisciplineID);
+            //Если оценка существует - заменяем, иначе - создаем
+            if  (tmpGrade != Grade::NONE) {
+                //Проверка на "неуд.".
+                if (ui->gradesComboBox->currentText() == Config::gradesExam[1] && tmpGrade != Grade::BAD) {
+                     ind = true;
+                     mDB.resetGrade(mStudent.mID,
+                                       mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::BAD);
+                } else {
+                    if (ui->gradesComboBox->currentText() == Config::gradesExam[2] && tmpGrade != Grade::OKAY) {
+                        ind = true;
+                        mDB.resetGrade(mStudent.mID,
+                                          mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::OKAY);
+                    } else {
+                        if (ui->gradesComboBox->currentText() == Config::gradesExam[3] && tmpGrade != Grade::GOOD) {
+                            ind = true;
+                            mDB.resetGrade(mStudent.mID,
+                                              mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::GOOD);
+                        } else {
+                            if (ui->gradesComboBox->currentText() == Config::gradesExam[4] && tmpGrade != Grade::EXCELLENT) {
+                                ind = true;
+                                mDB.resetGrade(mStudent.mID,
+                                                  mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::EXCELLENT);
+                            } else {
+                                if (ui->gradesComboBox->currentText() == Config::gradesPass[1] && tmpGrade != Grade::NOPASSED) {
+                                    ind = true;
+                                    mDB.resetGrade(mStudent.mID,
+                                                      mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::NOPASSED);
+                                } else {
+                                    if (ui->gradesComboBox->currentText() == Config::gradesPass[2] && tmpGrade != Grade::PASSED) {
+                                        ind = true;
+                                        mDB.resetGrade(mStudent.mID,
+                                                          mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::PASSED);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                ind = true;
+                if (ui->gradesComboBox->currentText() == Config::gradesExam[1]) {
+                    mDB.createGrade(mStudent.mID,
+                                    mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::BAD);;
+                } else {
+                    if (ui->gradesComboBox->currentText() == Config::gradesExam[2]) {
+                        mDB.createGrade(mStudent.mID,
+                                          mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::OKAY);
+                    } else {
+                        if (ui->gradesComboBox->currentText() == Config::gradesExam[3]) {
+                            mDB.createGrade(mStudent.mID,
+                                              mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::GOOD);
+                        } else {
+                            if (ui->gradesComboBox->currentText() == Config::gradesExam[4]) {
+                                mDB.createGrade(mStudent.mID,
+                                                  mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::EXCELLENT);
+                            } else {
+                                if (ui->gradesComboBox->currentText() == Config::gradesPass[1]) {
+                                    mDB.createGrade(mStudent.mID,
+                                                      mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::NOPASSED);
+                                } else {
+                                    if (ui->gradesComboBox->currentText() == Config::gradesPass[2]) {
+                                        mDB.createGrade(mStudent.mID,
+                                                          mGroup->mDisciplines[idc[0].row()]->mDisciplineID, Grade::PASSED);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    setData();
+}
 
+void editStudentDialog::on_tableView_clicked(const QModelIndex &index)
+{
+    if (mGroup->mDisciplines[index.row()]->mForm == Discipline::EXAM) {
+        ui->gradesComboBox->clear();
+        ui->gradesComboBox->addItems(Config::gradesExam);
+    } else {
+        if (mGroup->mDisciplines[index.row()]->mForm == Discipline::PASS) {
+            ui->gradesComboBox->clear();
+            ui->gradesComboBox->addItems(Config::gradesPass);
+        }
+    }
+}

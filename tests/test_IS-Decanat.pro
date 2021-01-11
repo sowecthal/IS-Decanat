@@ -6,12 +6,14 @@ CONFIG += c++11
 HEADERS += \
     ../IS-Decanat/databases.h \
     ../IS-Decanat/dataclasses/user.h \
+    ../IS-Decanat/dataclasses/grade.h \
     ../IS-Decanat/dataclasses/group.h \
     ../IS-Decanat/dataclasses/discipline.h
 
 SOURCES += \
     ../IS-Decanat/databases.cpp \
     ../IS-Decanat/dataclasses/user.cpp \
+    ../IS-Decanat/dataclasses/grade.cpp \
     ../IS-Decanat/dataclasses/group.cpp \
     ../IS-Decanat/dataclasses/discipline.cpp \
     tst_1.cpp

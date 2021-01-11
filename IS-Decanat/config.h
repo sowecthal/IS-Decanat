@@ -12,7 +12,7 @@ namespace Config
     const QStringList studentComboBoxItems = {"Оценки", "Стипендия"};
     const QStringList grant = {"Нет", "Обычная", "Повышенная"};
     const QStringList disciplineFormOfControl = {"Зачёт", "Экзамен"};
-    const QStringList gradesExam = {"Неудовлетворительно", "Удовлетворительно", "Хорошо", "Отлично"};
-    const QStringList gradesPass = {"Не зачтено", "Зачтено"};
+    const QStringList gradesExam = {"Нет", "Неудовлетворительно", "Удовлетворительно", "Хорошо", "Отлично"};
+    const QStringList gradesPass = {"Нет","Не зачтено", "Зачтено"};
 }
 #endif // CONFIG_H

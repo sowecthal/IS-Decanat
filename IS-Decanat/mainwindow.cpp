@@ -51,14 +51,9 @@ void MainWindow::setUser(User* sUser)
     }
 }
 
-int MainWindow::findGrade(int fDisciplineID)
+Grade::grades MainWindow::findGrade(int fDisciplineID)
 {
-//    for (int i= 0; i < mUser->mGrades.length(); i += 2) {
-//        if (fDisciplineID == mUser->mGrades[i]) {
-//            return(mUser->mGrades[i+1]);
-//        }
-//    }
-    return(-1);
+    return(db.findGrade(mUser->mID, fDisciplineID));
 }
 
 void MainWindow::setData()
@@ -155,19 +150,29 @@ void MainWindow::setData()
                                 }
                             };
 
-                            int grade = findGrade(nowGroup->mDisciplines[i]->mDisciplineID);
-                            if (grade != -1) {
-                                if (nowGroup->mDisciplines[i]->mForm == Discipline::forms::PASS) {
-                                    if (grade == 0) {
-                                        model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[0])));
+                            Grade::grades grade = findGrade(nowGroup->mDisciplines[i]->mDisciplineID);
+                            if (grade == Grade::NONE) {
+                                model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[0])));
+                             } else {
+                                 if (grade == Grade::BAD) {
+                                    model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[1])));
+                                 } else {
+                                    if (grade == Grade::OKAY) {
+                                        model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[2])));
                                     } else {
-                                        if (grade > 0) {
-                                            model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[1])));
+                                        if (grade == Grade::GOOD) {
+                                            model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[3])));
                                         } else {
-                                            if (nowGroup->mDisciplines[i]->mForm == Discipline::forms::EXAM) {
-                                                model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[grade])));
+                                            if (grade == Grade::EXCELLENT) {
+                                                model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[4])));
                                             } else {
-                                                model->setItem(i,2,new QStandardItem(QString("Нет")));
+                                                if (grade == Grade::NOPASSED) {
+                                                    model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[1])));
+                                                } else {
+                                                    if (grade == Grade::PASSED) {
+                                                        model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[2])));
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -242,8 +247,11 @@ void MainWindow::on_tableView_activated(const QModelIndex &index)
 
             if (esd.exec() == QDialog::Accepted) {
                 db.reloadGroups();
+                db.overwriteGrades();
                 db.overwriteUsers();
                 setData();
+            } else {
+                db.reloadGrades();
             }
         } else {
             if (ui->comboBox->currentText() == "Дисциплины") {
@@ -329,24 +337,19 @@ void MainWindow::removeNoteThis()
     if (idc.length() == 0) {
         QMessageBox::warning(this, "Примечание", "Сперва выберете элементы таблицы.");
     } else {
-        if (QMessageBox::question(this, QString("Подтверждение удаления"),QString("Вы уверены, что хотите удалить заметку?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
-        {
+        if (QMessageBox::question(this, QString("Подтверждение удаления"),
+                                  QString("Вы уверены, что хотите удалить заметку?"),
+                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes){
             if (ui->comboBox->currentText() == "Пользователи") {
-                    db.usersList.removeAt(idc[0].row());
-                    db.overwriteUsers();
-                    setData();
+                if (db.usersList[idc[0].row()].getRole() == User::STUDENT) {
+                    db.deleteGradesByStudent(db.usersList[idc[0].row()].mID);
+                }
+                db.usersList.removeAt(idc[0].row());
+                db.overwriteUsers();
+                setData();
             } else {
                 if (ui->comboBox->currentText() == "Дисциплины") {
-//                    for (User& i : db.usersList) {
-//                        for (int j = 0; j<i.mGrades.length(); j++) {
-//                            if (i.mGrades[j] == db.disciplinesList[idc[0].row()].mDisciplineID && j%2 == 0) {
-//                                i.mGrades.removeAt(j);
-//                                i.mGrades.removeAt(j+1);
-//                                db.overwriteUsers();
-//                                break;
-//                            }
-//                        }
-//                    }
+                    db.deleteGradesByDiscipine(db.disciplinesList[idc[0].row()].mDisciplineID);
 
                     db.disciplinesList.removeAt(idc[0].row());
                     db.overwriteDisciplines();

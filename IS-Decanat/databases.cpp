@@ -2,6 +2,7 @@
 #include "dataclasses/user.h"
 #include "dataclasses/group.h"
 #include "dataclasses/discipline.h"
+#include "dataclasses/grade.h"
 
 #include <QDebug>
 #include <QFile>
@@ -12,7 +13,7 @@ DataBases::DataBases()
     //Загрузка из двоичных файлов.
     loadUsers();
     loadDisciplines();
-    //loadGrades();
+    loadGrades();
     loadGroups();
     //Устранение несоответсвий.
     coinsideGroups();
@@ -88,6 +89,7 @@ void DataBases::loadDisciplines()
             disciplinesList.push_back(newDiscipline); 
         }
     }
+    inFile.close();
 }
 
 void DataBases::loadGrades()
@@ -102,28 +104,13 @@ void DataBases::loadGrades()
             int tmpStudentID;
             int tmpDisciplineID;
             Grade::grades tmpValue;
-            User *tmpStudent;
-            Discipline *tmpDiscipline;
 
             inStream >> tmpStudentID >> tmpDisciplineID >> tmpValue;
 
-            for (User &nowUser : usersList) {
-                if (nowUser.mID == tmpStudentID) {
-                    tmpStudent = &nowUser;
-                    break;
-                }
-            }
-            for (Discipline &nowDiscipline : disciplinesList) {
-                if (nowDiscipline.mDisciplineID == tmpDisciplineID) {
-                    tmpDiscipline = &nowDiscipline;
-                    break;
-                }
-            }
-
-            Grade newGrade(tmpStudent, tmpDiscipline, tmpValue);
-            gradesList.push_back(newGrade);
+            createGrade(tmpStudentID, tmpDisciplineID, tmpValue);
         }
     }
+    inFile.close();
 }
 
 void DataBases::loadGroups()
@@ -167,13 +154,20 @@ void DataBases::loadGroups()
 
 void DataBases::reloadAll()
 {
-    groupsList.clear();
     usersList.clear();
     disciplinesList.clear();
 
     loadUsers();
     loadDisciplines();
-    loadGroups();
+
+    reloadGroups();
+    reloadGrades();
+}
+
+void DataBases::reloadGrades()
+{
+    gradesList.clear();
+    loadGrades();
 }
 
 void DataBases::reloadGroups()
@@ -279,6 +273,20 @@ void DataBases::overwriteGroups()
     outFile.close();
 }
 
+void DataBases::overwriteGrades()
+{
+    QFile outFile("data/Grades.bin");
+
+    if (outFile.open(QIODevice::WriteOnly)) {
+        QDataStream outStream(&outFile);
+
+        for (Grade &nowGrade : gradesList) {
+            nowGrade.write(outStream);
+        }
+    }
+    outFile.close();
+}
+
 User *DataBases::findAuthUser(QString fLogin, QString fPassword)
 {
     for (int i = 0; i < usersList.length(); i++) {
@@ -318,6 +326,82 @@ Group *DataBases::findGroupName(QString fName)
     }
     Group *unfound = new Group(0, "", {}, {});
     return(unfound);
+}
+
+void DataBases::createGrade(int cStudentID, int cDisciplineID, Grade::grades cGrade)
+{
+    User *tmpStudent  = nullptr;
+    Discipline *tmpDiscipline = nullptr;
+
+    for (User &nowUser : usersList) {
+        if (nowUser.mID == cStudentID) {
+            tmpStudent = &nowUser;
+            break;
+        }
+    }
+    for (Discipline &nowDiscipline : disciplinesList) {
+        if (nowDiscipline.mDisciplineID == cDisciplineID) {
+            tmpDiscipline = &nowDiscipline;
+            break;
+        }
+    }
+
+    if (tmpStudent != nullptr && tmpDiscipline != nullptr) {
+        Grade newGrade(*tmpStudent, *tmpDiscipline, cGrade);
+        gradesList.append(newGrade);
+    }
+}
+
+Grade::grades DataBases::findGrade(int fStudentID, int fDisciplineID)
+{
+    for (Grade &nowGrade : gradesList) {
+        if (nowGrade.find(fStudentID, fDisciplineID) != Grade::NONE) {
+            return(nowGrade.find(fStudentID, fDisciplineID));
+        }
+    }
+    return(Grade::NONE);
+}
+
+void DataBases::resetGrade(int rStudentID, int rDisciplineID, Grade::grades rGrade)
+{
+    for (Grade &nowGrade : gradesList) {
+        if (nowGrade.itsMe(rStudentID, rDisciplineID)) {
+            nowGrade.reset(rGrade);
+            return;
+        }
+    }
+}
+
+void DataBases::deleteGrade(int dStudentID, int dDisciplineID)
+{
+    for (int index = 0; index < gradesList.length(); index++) {
+        if (gradesList[index].itsMe(dStudentID, dDisciplineID)) {
+            gradesList.removeAt(index);
+            return;
+        }
+    }
+}
+
+void DataBases::deleteGradesByDiscipine(int dDisciplineID)
+{
+    QMutableListIterator<Grade> i(gradesList);
+    while(i.hasNext()) {
+        Grade nowGrade = i.next();
+        if (nowGrade.belongsDiscipline(dDisciplineID)) {
+           i.remove();
+        }
+    }
+}
+
+void DataBases::deleteGradesByStudent(int dStudentID)
+{
+    QMutableListIterator<Grade> i(gradesList);
+    while(i.hasNext()) {
+        Grade nowGrade = i.next();
+        if (nowGrade.belongsStudent(dStudentID)) {
+           i.remove();
+        }
+    }
 }
 
 int DataBases::getNextDisciplineID()

@@ -149,7 +149,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="gradesComboBox">
        <item>
         <property name="text">
          <string>Нет</string>
@@ -188,7 +188,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="setGradeButton">
+      <widget class="QPushButton" name="pushButton">
        <property name="text">
         <string>Установить</string>
        </property>
@@ -262,14 +262,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>setGradeButton</sender>
-   <signal>pressed()</signal>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
    <receiver>editStudentDialog</receiver>
-   <slot>setGrade()</slot>
+   <slot>setGradeThis()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>546</x>
-     <y>167</y>
+     <x>543</x>
+     <y>174</y>
     </hint>
     <hint type="destinationlabel">
      <x>296</x>
@@ -279,6 +279,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>setGrade()</slot>
+  <slot>setGradeThis()</slot>
  </slots>
 </ui>

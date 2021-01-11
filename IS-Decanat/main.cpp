@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     QDir().mkdir("data");
     QApplication a(argc, argv);
 
-    DataBases* db = new DataBases;
+    DataBases *db = new DataBases;
     MainWindow mw(*db);
     AuthWindow aw(*db);
 

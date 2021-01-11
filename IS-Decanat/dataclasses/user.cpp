@@ -1,4 +1,5 @@
 #include "user.h"
+
 #include <QDebug>
 
 User::User(QString uLogin, QString uPassword, roles uRole)
