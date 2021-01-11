@@ -215,7 +215,6 @@ void DataBases::overwriteAll()
     overwriteUsers();
     overwriteDisciplines();
     overwriteGroups();
-    overwriteGrades();
 }
 
 void DataBases::overwriteUsers()
@@ -298,7 +297,8 @@ User *DataBases::findAuthUser(QString fLogin, QString fPassword)
             }
         }
     }
-    return(nullptr);
+    User *unfound = new User("", "", User::roles::UNKNOWN);
+    return(unfound);
 }
 
 User *DataBases::findStudent(int fID)
@@ -306,7 +306,8 @@ User *DataBases::findStudent(int fID)
     for (User &found : usersList) {
         if (found.mID == fID) return(&found);
     }
-    return(nullptr);
+    User *unfound = new User("", "", User::roles::UNKNOWN);
+    return(unfound);
 }
 
 Group *DataBases::findGroup(int fID)
@@ -314,15 +315,8 @@ Group *DataBases::findGroup(int fID)
     for (Group &found : groupsList) {
         if (found.mGroupID == fID) return(&found);
     }
-    return(nullptr);
-}
-
-Discipline *DataBases::findDiscipline(int fID)
-{
-    for (Discipline &found : disciplinesList) {
-        if (found.mDisciplineID == fID) return(&found);
-    }
-    return(nullptr);
+    Group *unfound = new Group(0, "", {}, {});
+    return(unfound);
 }
 
 Group *DataBases::findGroupName(QString fName)
@@ -330,13 +324,27 @@ Group *DataBases::findGroupName(QString fName)
     for (Group &i : groupsList) {
         if (i.mNumber == fName) return(&i);
     }
-    return(nullptr);
+    Group *unfound = new Group(0, "", {}, {});
+    return(unfound);
 }
 
 void DataBases::createGrade(int cStudentID, int cDisciplineID, Grade::grades cGrade)
 {
-    User *tmpStudent  = findStudent(cStudentID);
-    Discipline *tmpDiscipline = findDiscipline(cDisciplineID);
+    User *tmpStudent  = nullptr;
+    Discipline *tmpDiscipline = nullptr;
+
+    for (User &nowUser : usersList) {
+        if (nowUser.mID == cStudentID) {
+            tmpStudent = &nowUser;
+            break;
+        }
+    }
+    for (Discipline &nowDiscipline : disciplinesList) {
+        if (nowDiscipline.mDisciplineID == cDisciplineID) {
+            tmpDiscipline = &nowDiscipline;
+            break;
+        }
+    }
 
     if (tmpStudent != nullptr && tmpDiscipline != nullptr) {
         Grade newGrade(*tmpStudent, *tmpDiscipline, cGrade);
