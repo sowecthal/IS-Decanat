@@ -146,7 +146,7 @@ void editStudentDialog::accept()
             ind = true;
         }
         if (mStudent.mID != ui->lineNumber->text().toInt() || mStudent.mID == 0) {
-            if (mDB.findStudent(ui->lineNumber->text().toInt())->getRole() != User::UNKNOWN) {
+            if (mDB.findStudent(ui->lineNumber->text().toInt()) != nullptr) {
                 QMessageBox::warning(this, "Ошибка", "Данный номер студенческого билета уже используется.");
                 return;
             } else {
@@ -159,9 +159,11 @@ void editStudentDialog::accept()
             ind = true;
         }
         if (ui->groupComboBox->currentIndex() != -1) {
-            if (mStudent.mGroupID != mDB.findGroupName(ui->groupComboBox->currentText())->mGroupID) {
-                mStudent.mGroupID = mDB.findGroupName(ui->groupComboBox->currentText())->mGroupID;
-                ind = true;
+            if (mDB.findGroupName(ui->groupComboBox->currentText()) != nullptr) {
+                if (mStudent.mGroupID != mDB.findGroupName(ui->groupComboBox->currentText())->mGroupID) {
+                    mStudent.mGroupID = mDB.findGroupName(ui->groupComboBox->currentText())->mGroupID;
+                    ind = true;
+                }
             }
         }
         //Если были изменеия - завершаем с accept
