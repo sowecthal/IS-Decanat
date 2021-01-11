@@ -34,13 +34,12 @@ void AuthWindow::accept()
 {
     //Если значения полей совпадают с авторизационными даннымы резервного администратора - войти как администратор, иначе - поиск пользователя.
     if (ui->lineLogin->text() == Config::reservAdminLogin && ui->linePassword->text() == Config::reservAdminPassword) {
-        authUser = new User("", "", User::roles::ADMIN);
+        authUser = new User("Reserv", "Reserv", User::roles::ADMIN);
     } else {
         authUser = db.findAuthUser(ui->lineLogin->text(), ui->linePassword->text());
     }
 
-    //Если роль == -1(соответствует отсутствию пользователя в БД) - сообщение об ошибке, иначе - завершение с accept.
-    if (authUser->getRole() == User::roles::UNKNOWN) {
+    if (authUser == nullptr) {
         QMessageBox::warning(this, "Ошибка", "Неверное имя пользователя или пароль, попробуйте заново.");
     } else {
         QDialog::accept();

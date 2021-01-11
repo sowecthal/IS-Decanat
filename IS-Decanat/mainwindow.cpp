@@ -96,7 +96,9 @@ void MainWindow::setData()
             {
                 students.clear();
                 for (User &i : db.usersList) {
-                    if (i.getRole() == User::roles::STUDENT) students.push_back(&i);
+                    if (i.getRole() == User::roles::STUDENT) {
+                        students.push_back(&i);
+                    }
                 }
 
                 model = new QStandardItemModel(students.length(), 5, this);
@@ -110,7 +112,9 @@ void MainWindow::setData()
                     model->setItem(i,0,new QStandardItem(QString(students[i]->mSurname)));
                     model->setItem(i,1,new QStandardItem(QString(students[i]->mName)));
                     model->setItem(i,2,new QStandardItem(QString(students[i]->mPatronymic)));
-                    model->setItem(i,3,new QStandardItem(db.findGroup(students[i]->mGroupID)->mNumber));
+                    if (db.findGroup(students[i]->mGroupID) != nullptr) {
+                        model->setItem(i,3,new QStandardItem(db.findGroup(students[i]->mGroupID)->mNumber));
+                    }
                     model->setItem(i,4,new QStandardItem(QString::number(students[i]->mID)));
                 }
                 ui->tableView->setModel(model);
@@ -134,43 +138,46 @@ void MainWindow::setData()
                     ui->tableView->setModel(model);
                 } else {
                     if (ui->comboBox->currentText() == "Оценки") {
-                        model = new QStandardItemModel(db.findGroup(mUser->mGroupID)->mDisciplines.length(), 3, this);
-                        model->setHorizontalHeaderItem(0, new QStandardItem(QString("Наименование дисциплины")));
-                        model->setHorizontalHeaderItem(1, new QStandardItem(QString("Форма контроля")));
-                        model->setHorizontalHeaderItem(2, new QStandardItem(QString("Оценка")));
-
                         Group* nowGroup = db.findGroup(mUser->mGroupID);
-                        for(int i = 0; i<nowGroup->mDisciplines.length(); i++) {
-                            model->setItem(i,0,new QStandardItem(QString(nowGroup->mDisciplines[i]->mName)));
-                            if (db.disciplinesList[i].mForm == Discipline::forms::PASS) {
-                                model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[0]));
-                            } else {
-                                if (db.disciplinesList[i].mForm == Discipline::forms::EXAM) {
-                                    model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[1]));
-                                }
-                            };
+                        if (nowGroup != nullptr) {
+                            model = new QStandardItemModel(db.findGroup(mUser->mGroupID)->mDisciplines.length(), 3, this);
+                            model->setHorizontalHeaderItem(0, new QStandardItem(QString("Наименование дисциплины")));
+                            model->setHorizontalHeaderItem(1, new QStandardItem(QString("Форма контроля")));
+                            model->setHorizontalHeaderItem(2, new QStandardItem(QString("Оценка")));
 
-                            Grade::grades grade = findGrade(nowGroup->mDisciplines[i]->mDisciplineID);
-                            if (grade == Grade::NONE) {
-                                model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[0])));
-                             } else {
-                                 if (grade == Grade::BAD) {
-                                    model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[1])));
+
+                            for(int i = 0; i<nowGroup->mDisciplines.length(); i++) {
+                                model->setItem(i,0,new QStandardItem(QString(nowGroup->mDisciplines[i]->mName)));
+                                if (db.disciplinesList[i].mForm == Discipline::forms::PASS) {
+                                    model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[0]));
+                                } else {
+                                    if (db.disciplinesList[i].mForm == Discipline::forms::EXAM) {
+                                        model->setItem(i,1,new QStandardItem(Config::disciplineFormOfControl[1]));
+                                    }
+                                };
+
+                                Grade::grades grade = findGrade(nowGroup->mDisciplines[i]->mDisciplineID);
+                                if (grade == Grade::NONE) {
+                                    model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[0])));
                                  } else {
-                                    if (grade == Grade::OKAY) {
-                                        model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[2])));
-                                    } else {
-                                        if (grade == Grade::GOOD) {
-                                            model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[3])));
+                                     if (grade == Grade::BAD) {
+                                        model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[1])));
+                                     } else {
+                                        if (grade == Grade::OKAY) {
+                                            model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[2])));
                                         } else {
-                                            if (grade == Grade::EXCELLENT) {
-                                                model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[4])));
+                                            if (grade == Grade::GOOD) {
+                                                model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[3])));
                                             } else {
-                                                if (grade == Grade::NOPASSED) {
-                                                    model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[1])));
+                                                if (grade == Grade::EXCELLENT) {
+                                                    model->setItem(i,2,new QStandardItem(QString(Config::gradesExam[4])));
                                                 } else {
-                                                    if (grade == Grade::PASSED) {
-                                                        model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[2])));
+                                                    if (grade == Grade::NOPASSED) {
+                                                        model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[1])));
+                                                    } else {
+                                                        if (grade == Grade::PASSED) {
+                                                            model->setItem(i,2,new QStandardItem(QString(Config::gradesPass[2])));
+                                                        }
                                                     }
                                                 }
                                             }

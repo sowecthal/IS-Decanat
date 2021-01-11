@@ -26,6 +26,13 @@ public:
     bool belongsStudent(int fStudentID);
     //! Возвращает True, если совпали ID
     bool itsMe(int fStudentID, int fDisciplineID);
+    //! Возвращает ID студена
+    int getStudentID();
+    //! Возвращает оценку
+    grades getValue();
+    //! Возвращает ID дисциплины
+    int getDisciplineID();
+
 private:
     const User &mStudent;
     const Discipline &mDiscipline;
