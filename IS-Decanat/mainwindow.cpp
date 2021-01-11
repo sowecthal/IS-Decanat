@@ -364,6 +364,12 @@ void MainWindow::removeNoteThis()
                     setData();
                 } else {
                     if (ui->comboBox->currentText() == "Группы") {
+                        for (Discipline &i : db.disciplinesList)
+                        {
+                            if (i.mGroups.contains(db.groupsList[idc[0].row()].mGroupID)) {
+                                i.mGroups.removeOne(db.groupsList[idc[0].row()].mGroupID);
+                            }
+                        }
                         db.groupsList.removeAt(idc[0].row());
                         db.overwriteGroups();
                         db.coinsideGroups();
