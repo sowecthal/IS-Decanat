@@ -25,10 +25,6 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="resources.qrc">
-    <normaloff>:/icons/Dekanat.svg</normaloff>:/icons/Dekanat.svg</iconset>
-  </property>
   <property name="styleSheet">
    <string notr="true"/>
   </property>
@@ -86,9 +82,7 @@
    </layout>
   </widget>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

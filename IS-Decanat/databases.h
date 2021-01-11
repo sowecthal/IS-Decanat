@@ -24,7 +24,6 @@ public:
     //! Поиск по id
     User *findStudent(int fID);
     Group *findGroup(int fID);
-    Discipline *findDiscipline(int fID);
     //! Поиск по имени
     Group *findGroupName(QString fName);
 
