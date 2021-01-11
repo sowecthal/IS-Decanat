@@ -13,12 +13,7 @@ Grade::Grade(const User &sStudent, const Discipline &sDiscipline, grades sGrade)
     mStudent(sStudent),
     mDiscipline(sDiscipline)
 {
-    mValue = sGrade;
-}
-
-void Grade::reset(grades newGrade)
-{
-    mValue = getSuitable(newGrade);
+    mValue = getSuitable(sGrade);
 }
 
 void Grade::write(QDataStream &ost)
@@ -77,11 +72,30 @@ bool Grade::belongsStudent(int bStudentID)
     return(false);
 }
 
-
 Grade::grades Grade::find(int fStudentID, int fDisciplineID)
 {
     if (itsMe(fStudentID, fDisciplineID)) {
         return(mValue);
     }
     return(grades::NONE);
+}
+
+void Grade::reset(grades newGrade)
+{
+    mValue = getSuitable(newGrade);
+}
+
+int Grade::getStudentID()
+{
+    return(mStudent.mID);
+}
+
+int Grade::getDisciplineID()
+{
+    return(mDiscipline.mDisciplineID);
+}
+
+Grade::grades Grade::getValue()
+{
+    return(mValue);
 }

@@ -35,7 +35,9 @@ void EditDisciplineDialog::setData()
     model->setHorizontalHeaderItem(0, new QStandardItem(QString("Номер группы")));
 
     for (int i = 0; i < mGroups.length(); i++) {
-        model->setItem(i,0,new QStandardItem(QString(mDB.findGroup(mGroups[i])->mNumber)));
+        if (mDB.findGroup(mGroups[i]) != nullptr) {
+            model->setItem(i,0,new QStandardItem(QString(mDB.findGroup(mGroups[i])->mNumber)));
+        }
     }
     ui->MyGroups->setModel(model);
 }
@@ -85,8 +87,10 @@ void EditDisciplineDialog::on_MyGroups_activated(const QModelIndex &index)
 void EditDisciplineDialog::find()
 {
     Group* foundGroup = mDB.findGroupName(ui->lineFind->text());
-    if (foundGroup->mGroupID != 0 && !mGroups.contains(foundGroup->mGroupID)) {
-        mGroups.append(foundGroup->mGroupID);
+    if (foundGroup != nullptr) {
+        if (!mGroups.contains(foundGroup->mGroupID)) {
+            mGroups.append(foundGroup->mGroupID);
+        }
     }
     setData();
 }

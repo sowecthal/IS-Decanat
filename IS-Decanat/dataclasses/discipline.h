@@ -7,7 +7,7 @@
 class Discipline
 {
 public:
-    enum forms {EXAM, PASS};
+    enum forms {NONE, EXAM, PASS};
     //! Конструктор по умолчанию
     Discipline() {}
     //! Конструктор дисциплины
